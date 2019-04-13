@@ -138,7 +138,17 @@ namespace AssetBundleFramework
 
             assetLoadComplete(LoadAsset(abName, assetName, isCache, classify));                     //资源加载完成调用回调函数，参数为加载进来的资源（若AB包已经加载了，则这是一个同步加载）
         }
-
+        /// <summary>
+        /// 外部调用，加载资源用（重载函数）
+        /// </summary>
+        /// <param name="asset">资源数据</param>
+        /// <param name="assetLoadComplete">回调函数</param>
+        /// <param name="isCache">是否缓存</param>
+        /// <param name="classify">分类包</param>
+        public void LoadBundleAsset(ABAsset asset, Action<UnityEngine.Object> assetLoadComplete, bool isCache = true, BundleClassify classify = BundleClassify.Normal)
+        {
+            LoadBundleAsset(asset.ABPath, asset.AssetName, assetLoadComplete, isCache, classify);
+        }
         /// <summary>
         /// 释放资源。
         /// </summary>
