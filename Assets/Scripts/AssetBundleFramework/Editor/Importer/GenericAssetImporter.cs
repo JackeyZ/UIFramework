@@ -10,61 +10,61 @@ namespace AssetBundleFramework
     class GenericAssetImporter : AssetPostprocessor
     {
         private static HashSet<string> tempIgnoreAssets = new HashSet<string>(); // 用于储存刚刚已经import的资源
+        static Dictionary<string, string> needCheckSpriteAtlasDic = new Dictionary<string, string>();
 
         static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
         {
-            string lastTexturePath = "";
             foreach (var importedAsset in importedAssets)
             {
                 MarkAssetBundlePath(importedAsset);     //设置ab包标记
                 ProcessTextureType(importedAsset);      //设置贴图类型
                 //ProcessPackingTag(importedAsset);     //设置图集tag（旧版图集）
 
-                int lastIndex = importedAsset.LastIndexOf(".");
-                if (lastIndex != -1 && importedAsset.Substring(lastIndex, importedAsset.Length - lastIndex) == ".png")
-                {
-                    lastTexturePath = importedAsset;
-                }
+                AddNeedCheckSpriteAtlasList(importedAsset);
             }
-            CheckSpriteAtlas(lastTexturePath);   //新建图集（新版图集）
-            lastTexturePath = "";
 
             foreach (var movedAsset in movedAssets)
             {
                 MarkAssetBundlePath(movedAsset);
                 ProcessTextureType(movedAsset);
                 //ProcessPackingTag(movedAsset);
-
-                int lastIndex = movedAsset.LastIndexOf(".");
-                if (lastIndex != -1 && movedAsset.Substring(lastIndex, movedAsset.Length - lastIndex) == ".png")
-                {
-                    lastTexturePath = movedAsset;
-                }
+                
+                AddNeedCheckSpriteAtlasList(movedAsset);
             }
-            CheckSpriteAtlas(lastTexturePath);   //新建图集（新版图集）
-            lastTexturePath = "";
 
             foreach (var movedFromAsset in movedFromAssetPaths)
             {
-                int lastIndex = movedFromAsset.LastIndexOf(".");
-                if (lastIndex != -1 && movedFromAsset.Substring(lastIndex, movedFromAsset.Length - lastIndex) == ".png")
-                {
-                    lastTexturePath = movedFromAsset;
-                }
+                AddNeedCheckSpriteAtlasList(movedFromAsset);
             }
-            CheckSpriteAtlas(lastTexturePath);   //新建图集（新版图集）
-            lastTexturePath = "";
 
             foreach (var deleteddAsset in deletedAssets)
             {
-                int lastIndex = deleteddAsset.LastIndexOf(".");
-                if (lastIndex != -1 && deleteddAsset.Substring(lastIndex, deleteddAsset.Length - lastIndex) == ".png")
+                AddNeedCheckSpriteAtlasList(deleteddAsset);
+            }
+            CheckSpriteAtlasList();
+        }
+
+        static void AddNeedCheckSpriteAtlasList(string importedAsset)
+        {
+            int lastIndex = importedAsset.LastIndexOf(".");
+            if (lastIndex != -1 && importedAsset.Substring(lastIndex, importedAsset.Length - lastIndex) == ".png")
+            {
+                int nameIndex = importedAsset.LastIndexOf("/");
+                string path = importedAsset.Substring(0, nameIndex);
+                if (!needCheckSpriteAtlasDic.ContainsKey(path))
                 {
-                    lastTexturePath = deleteddAsset;
+                    needCheckSpriteAtlasDic.Add(path, importedAsset);
                 }
             }
-            CheckSpriteAtlas(lastTexturePath);   //新建图集（新版图集）
-            lastTexturePath = "";
+        }
+
+        static void CheckSpriteAtlasList()
+        {
+            foreach (var item in needCheckSpriteAtlasDic)
+            {
+                CheckSpriteAtlas(item.Value);
+            }
+            needCheckSpriteAtlasDic.Clear();
         }
 
 
@@ -195,6 +195,10 @@ namespace AssetBundleFramework
             }
             DirectoryInfo dirInfo = new DirectoryInfo(assetPath);   // 资源路径
             DirectoryInfo parentDirInfo = dirInfo.Parent;           // 资源父路径
+            if(!parentDirInfo.Exists)
+            {
+                return;
+            }
             // 检查当前目录图集是否已存在
             foreach (var item in parentDirInfo.GetFileSystemInfos())
             {
