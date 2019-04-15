@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace UIFramework
 {
     /// <summary>
@@ -15,17 +18,10 @@ namespace UIFramework
     public class BaseView : MonoBehaviour
     {
         /*字段*/
-        private UIType uiType = new UIType();
+        [SerializeField]
+        public UIType uiType = new UIType();
 
-
-        /*属性*/
-        public UIType UiType
-        {
-            get
-            { return uiType; }
-            set
-            { uiType = value; }
-        }
+        public int num;
 
         /// <summary>
         /// 显示状态
@@ -59,4 +55,26 @@ namespace UIFramework
 
         }
     }
+
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(BaseView), true)]
+    public class BaseViewEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            //获取脚本对象
+            BaseView script = target as BaseView;
+            script.uiType.uiViewType = (UIViewType)EditorGUILayout.EnumPopup("面板类型：", script.uiType.uiViewType);
+            script.uiType.uiViewShowMode = (UIViewShowMode)EditorGUILayout.EnumPopup("面板显示类型：", script.uiType.uiViewShowMode);
+            script.uiType.uiViewLucenyType = (UIViewLucenyType)EditorGUILayout.EnumPopup("面板背景类型：", script.uiType.uiViewLucenyType);
+
+            if (GUI.changed)
+            {
+                EditorUtility.SetDirty(target);
+            }
+        }
+    }
+
+#endif
 }

@@ -1,7 +1,7 @@
 fileFormatVersion: 2
-guid: 4dd53eed3693d6f489fc22a0bb55e26d
+guid: d4d21fa188ff56d4a9ecd808541c89da
 PrefabImporter:
   externalObjects: {}
   userData: 
-  assetBundleName: ui/commonprefab
+  assetBundleName: ui/prefabs/logon
   assetBundleVariant: u3dassetbundle

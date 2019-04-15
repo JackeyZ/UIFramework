@@ -53,7 +53,6 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
     {
         public override void OnInspectorGUI()
         {
-
             //获取脚本对象
             NameTable script = target as NameTable;
             script._Size = Mathf.Min(EditorGUILayout.IntField("数量：", script._Size), 100);
@@ -76,6 +75,12 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                 EditorGUILayout.EndHorizontal();
             }
             script._keys.RemoveRange(i, script._keys.Count - i);
+
+
+            if (GUI.changed)
+            {
+                EditorUtility.SetDirty(target);
+            }
         }
     }
 

@@ -96,8 +96,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6563279422828528071}
+  - component: {fileID: 9096422940338518435}
   m_Layer: 0
-  m_Name: UIRoot
+  m_Name: UICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -119,6 +120,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9096422940338518435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3971436309184908642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c815ae149fb0374fab0d4800ab7c398, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Size: 4
+  _keys:
+  - UIRoot
+  - NormalRoot
+  - FixedRoot
+  - PopUpRoot
+  _values:
+  - {fileID: 5711783255104204046}
+  - {fileID: 5711783255166999836}
+  - {fileID: 5711783254302200813}
+  - {fileID: 5711783254418369125}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &5711783254302200813
 GameObject:
   m_ObjectHideFlags: 0
@@ -131,7 +157,7 @@ GameObject:
   - component: {fileID: 5711783254302200814}
   - component: {fileID: 5711783254302200815}
   m_Layer: 5
-  m_Name: Fixed
+  m_Name: FixedRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -205,7 +231,7 @@ GameObject:
   - component: {fileID: 5711783254418369126}
   - component: {fileID: 5711783254418369127}
   m_Layer: 5
-  m_Name: PopUp
+  m_Name: PopUpRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -280,7 +306,7 @@ GameObject:
   - component: {fileID: 5711783255104204040}
   - component: {fileID: 5711783255104204041}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: UIRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -346,7 +372,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -380,7 +406,7 @@ GameObject:
   - component: {fileID: 5711783255166999833}
   - component: {fileID: 5711783255166999838}
   m_Layer: 5
-  m_Name: Normal
+  m_Name: NormalRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

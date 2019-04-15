@@ -92,4 +92,12 @@ public static class ImageExtensions
         }, isCache);
 #endif
     }
+
+    /// <summary>
+    /// Load the sprite into this image.
+    /// </summary>
+    public static void LoadSprite(this Image image,AssetBundleFramework.ABAsset abAsset, bool isCache = true, Action complete = null)
+    {
+        LoadSprite(image, abAsset.ABPath, abAsset.AssetName, isCache, complete);
+    }
 }

@@ -11,6 +11,11 @@ namespace UIFramework
     /// </summary>
     public class SysDefine : MonoBehaviour
     {
+        /* 路径 */
+
+        /* 标签Tag */
+
+        /* 委托 */
 
     }
     #region 枚举
@@ -46,4 +51,6 @@ namespace UIFramework
     }
 
     #endregion
+
+
 }

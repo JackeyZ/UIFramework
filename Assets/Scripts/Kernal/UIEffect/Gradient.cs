@@ -15,9 +15,11 @@ public enum Blend
     Multiply
 }
 
-
 namespace UnityEngine.UI
 {
+    /// <summary>
+    /// 渐变效果
+    /// </summary>
     [AddComponentMenu("UI/Effects/UGUI_Gradient")]
     public class Gradient : BaseMeshEffect
     {

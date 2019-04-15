@@ -9,6 +9,9 @@ using UnityEngine.UI;
 
 namespace AssetBundleFramework
 {
+    /// <summary>
+    /// Editor下根据AB路径和资源名称找到资源路径然后加载
+    /// </summary>
     public class AssetLoadInEditor
     {
 #if UNITY_EDITOR

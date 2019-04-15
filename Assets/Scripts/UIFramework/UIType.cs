@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace UIFramework
     /// 名称：窗体类型
     /// 
     /// </summary>
+    [Serializable]
     public class UIType
     {
         public UIViewType uiViewType = UIViewType.Normal;                       // UI窗体类型
