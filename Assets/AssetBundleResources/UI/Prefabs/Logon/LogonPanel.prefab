@@ -425,7 +425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiType:
-    uiViewType: 1
+    uiViewType: 0
     uiViewShowMode: 0
     uiViewLucenyType: 0
   num: 3

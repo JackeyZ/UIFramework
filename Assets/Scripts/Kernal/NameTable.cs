@@ -9,7 +9,7 @@ using UnityEditor;
 public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
 {
     [SerializeField]
-    private int _Size;
+    private int _Size = 0;
     [SerializeField]
     private List<string> _keys;
     [SerializeField]
@@ -55,7 +55,42 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
         {
             //获取脚本对象
             NameTable script = target as NameTable;
-            script._Size = Mathf.Min(EditorGUILayout.IntField("数量：", script._Size), 100);
+            EditorGUILayout.LabelField("数量："+ script._Size);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("+"))
+            {
+                Undo.RegisterCompleteObjectUndo(script, "NameTable");
+                script._Size += 1;
+            }
+            if (GUILayout.Button("-"))
+            {
+                Undo.RegisterCompleteObjectUndo(script, "NameTable");
+                script._Size -= 1;
+                if (script._Size < 0)
+                {
+                    script._Size = 0;
+                }
+            }
+            if (GUILayout.Button("排序"))
+            {
+                Undo.RegisterCompleteObjectUndo(script, "NameTable");
+                List<string> keyList = script._keys;
+                List<GameObject> valueList = script._values;
+                // 冒泡
+                for (int key1 = 0; key1 < keyList.Count; key1++)
+                {
+                    for (int key = 0; key < keyList.Count - key1 - 1; key++)
+                    {
+                        if(keyList[key].CompareTo(keyList[key + 1]) > 0)
+                        {
+                            Swap(keyList, key, key + 1);
+                            Swap(valueList, key, key + 1);
+                        }
+                    }
+                }
+
+            }
+            EditorGUILayout.EndHorizontal();
             if (script._keys == null)
             {
                 script._keys = new List<string>();
@@ -72,15 +107,28 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                 EditorGUILayout.BeginHorizontal();
                 script._keys[i] = EditorGUILayout.TextField(script._keys[i]);
                 script._values[i] = EditorGUILayout.ObjectField(script._values[i], typeof(GameObject), true) as GameObject;
+                if (GUILayout.Button("X"))
+                {
+                    Undo.RegisterCompleteObjectUndo(script, "size");
+                    script._Size -= 1;
+                    script._keys.RemoveAt(i);
+                }
                 EditorGUILayout.EndHorizontal();
             }
             script._keys.RemoveRange(i, script._keys.Count - i);
+            script._values.RemoveRange(i, script._values.Count - i);
 
 
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);
             }
+        }
+        void Swap<T>(List<T> list, int index1, int index2)
+        {
+            T goTemp = list[index1];
+            list[index1] = list[index2];
+            list[index2] = goTemp;
         }
     }
 

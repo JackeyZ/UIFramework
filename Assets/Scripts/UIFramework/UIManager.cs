@@ -93,48 +93,47 @@ namespace UIFramework
                     return;
                 }
 
-                PrefabLoader.LoadPrefab(_DicViewPrefabPath[viewName], (obj) => {
-                    BaseView baseView = null;
-                    _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
-                    GameObject gameObj = null;
-                    if (baseView == null)
-                    {
-                        gameObj = Instantiate(obj) as GameObject;                   // 实例化面板
-                        baseView = gameObj.GetComponent<BaseView>();
-                    }
-                    else
-                    {
-                        // 如果面板已经缓存
-                        gameObj = baseView.gameObject;
-                        gameObj.SetActive(true);                                    // 暂时这么写,后续再处理
-                        return;
-                    }
+                PrefabLoader.LoadPrefab(_DicViewPrefabPath[viewName], (prefab) => {
 
-                    if (baseView != null)
+                    BaseView tempBaseView = (prefab as GameObject).GetComponent<BaseView>();
+                    if (tempBaseView != null)
                     {
-                        UIViewType uiViewType = baseView.uiType.uiViewType;
+                        UIViewType uiViewType = tempBaseView.uiType.uiViewType;
 
                         switch (uiViewType)
                         {
                             case UIViewType.Normal:
-                                _DicViews.Add(viewName, baseView);                        // 普通面板加入缓存列表，不允许同时打开两个
+                                BaseView baseView = null;
+                                GameObject gameObj = null;
+                                _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
+                                if (baseView == null)
+                                {
+                                    gameObj = Instantiate(prefab) as GameObject;                // 实例化面板
+                                    baseView = gameObj.GetComponent<BaseView>();
+                                    _DicViews.Add(viewName, baseView);
+                                }
+                                else
+                                {
+                                    gameObj = baseView.gameObject;
+                                }
+                                baseView.Display();
+                                _DicShowViews.Add(viewName, baseView);
                                 gameObj.transform.SetParent(_TraNormalRoot, false);
                                 break;
                             case UIViewType.Fixed:
-                                gameObj.transform.SetParent(_TraFixedRoot, false);
+                                //gameObj.transform.SetParent(_TraFixedRoot, false);
                                 break;
                             case UIViewType.PopUp:
-                                gameObj.transform.SetParent(_TraPopUpRoot, false);
+                                //gameObj.transform.SetParent(_TraPopUpRoot, false);
                                 break;
                             default:
-                                gameObj.transform.SetParent(_TraNormalRoot, false);
+                                //gameObj.transform.SetParent(_TraNormalRoot, false);
                                 break;
                         }
                     }
                     else
                     {
                         Debug.LogError(viewName + "没有获取到对应的baseview脚本");
-                        gameObj.transform.SetParent(_TraNormalRoot, false);
                     }
                 });
             }
