@@ -15,6 +15,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : UnityEngine.Component{
             if (_Instance == null)
             {
                 _Instance = new GameObject("_Script:" + typeof(T).Name).AddComponent<T>();
+                DontDestroyOnLoad(_Instance);
             }
             return _Instance;
         }

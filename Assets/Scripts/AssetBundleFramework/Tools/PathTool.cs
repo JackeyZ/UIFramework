@@ -23,7 +23,9 @@ namespace AssetBundleFramework
         private static string outPutPath = string.Empty;
         public static string assetBundelResourcesRoot = Application.dataPath + "/" + "AssetBundleResources";
 
-        public static string ImagesDir = "Assets/AssetBundleResources/UI/Images"; //sprite图片存放路径
+        public static string ImagesDir = "Assets/AssetBundleResources/UI/Images";           //sprite图片存放路径
+
+        public static string AssetConfigDir = "Assets/AssetBundleResources/AssetConfigs";   //unity资源配置存放路径
 
         public static string OutPutPath
         {

@@ -109,7 +109,7 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                 script._values[i] = EditorGUILayout.ObjectField(script._values[i], typeof(GameObject), true) as GameObject;
                 if (GUILayout.Button("X"))
                 {
-                    Undo.RegisterCompleteObjectUndo(script, "size");
+                    Undo.RegisterCompleteObjectUndo(script, "NameTable");
                     script._Size -= 1;
                     script._keys.RemoveAt(i);
                 }

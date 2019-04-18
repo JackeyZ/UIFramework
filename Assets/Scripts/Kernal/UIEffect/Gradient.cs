@@ -20,7 +20,7 @@ namespace UnityEngine.UI
     /// <summary>
     /// 渐变效果
     /// </summary>
-    [AddComponentMenu("UI/Effects/UGUI_Gradient")]
+    [AddComponentMenu("UI/Effects/Gradient")]
     public class Gradient : BaseMeshEffect
     {
         [SerializeField]

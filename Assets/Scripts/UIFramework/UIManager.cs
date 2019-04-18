@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using AssetBundleFramework;
+using Kernal;
 
 namespace UIFramework
 {
@@ -43,7 +44,6 @@ namespace UIFramework
             // 实例化UI根画布
             _UICanvas = Instantiate<GameObject>(obj as GameObject);
             DontDestroyOnLoad(_UICanvas);
-            gameObject.transform.SetParent(_UICanvas.transform);
 
             // 找到不同类型面板的根节点
             _NameTable = _UICanvas.GetComponent<NameTable>();
@@ -54,7 +54,6 @@ namespace UIFramework
 
             // 把面板预制体信息写入（后期改用读取配置的方式）
             _DicViewPrefabPath.Add("LogonView", new ABAsset("ui/prefabs/logon.u3dassetbundle", "LogonPanel"));
-
 
             isLoaded = true;
         }
@@ -100,15 +99,15 @@ namespace UIFramework
                     {
                         UIViewType uiViewType = tempBaseView.uiType.uiViewType;
 
+                        BaseView baseView = null;
+                        GameObject gameObj = null;
                         switch (uiViewType)
                         {
                             case UIViewType.Normal:
-                                BaseView baseView = null;
-                                GameObject gameObj = null;
                                 _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
                                 if (baseView == null)
                                 {
-                                    gameObj = Instantiate(prefab) as GameObject;                // 实例化面板
+                                    gameObj = GameObjectPool.Instance.InstantiateGO(prefab as GameObject);                // 实例化面板
                                     baseView = gameObj.GetComponent<BaseView>();
                                     _DicViews.Add(viewName, baseView);
                                 }
@@ -121,7 +120,20 @@ namespace UIFramework
                                 gameObj.transform.SetParent(_TraNormalRoot, false);
                                 break;
                             case UIViewType.Fixed:
-                                //gameObj.transform.SetParent(_TraFixedRoot, false);
+                                _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
+                                if (baseView == null)
+                                {
+                                    gameObj = GameObjectPool.Instance.InstantiateGO(prefab as GameObject) ;                // 实例化面板
+                                    baseView = gameObj.GetComponent<BaseView>();
+                                    _DicViews.Add(viewName, baseView);
+                                }
+                                else
+                                {
+                                    gameObj = baseView.gameObject;
+                                }
+                                baseView.Display();
+                                _DicShowViews.Add(viewName, baseView);
+                                gameObj.transform.SetParent(_TraFixedRoot, false);
                                 break;
                             case UIViewType.PopUp:
                                 //gameObj.transform.SetParent(_TraPopUpRoot, false);
