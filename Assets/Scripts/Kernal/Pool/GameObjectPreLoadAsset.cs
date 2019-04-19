@@ -41,10 +41,9 @@ public class GameObjectPreLoadAssetEditor : Editor
         if (GUILayout.Button("-"))
         {
             Undo.RegisterCompleteObjectUndo(script, "GameObjectPreLoadAsset");
-            script.size -= 1;
-            if (script.size < 0)
+            if (script.size > 0)
             {
-                script.size = 0;
+                script.size -= 1;
             }
         }
         EditorGUILayout.EndHorizontal();
@@ -70,6 +69,10 @@ public class GameObjectPreLoadAssetEditor : Editor
             EditorGUILayout.BeginHorizontal();
             script.preLoadAssetList[i].prefab = EditorGUILayout.ObjectField(script.preLoadAssetList[i].prefab, typeof(GameObject), true) as GameObject;
             script.preLoadAssetList[i].preLoadNum = EditorGUILayout.IntField(script.preLoadAssetList[i].preLoadNum);
+            if (script.preLoadAssetList[i].preLoadNum < 0)
+            {
+                script.preLoadAssetList[i].preLoadNum = 0;
+            }
             if (GUILayout.Button("X"))
             {
                 Undo.RegisterCompleteObjectUndo(script, "GameObjectPreLoadAsset");
@@ -78,7 +81,11 @@ public class GameObjectPreLoadAssetEditor : Editor
             }
             EditorGUILayout.EndHorizontal();
         }
-        script.preLoadAssetList.RemoveRange(i, script.preLoadAssetList.Count - i);
+
+        if(script.preLoadAssetList.Count > 0)
+        {
+            script.preLoadAssetList.RemoveRange(i, script.preLoadAssetList.Count - i);
+        }
 
 
         if (GUI.changed)

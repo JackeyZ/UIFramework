@@ -83,6 +83,10 @@ namespace Kernal
         /// <param name="number">需要增加的数目</param>
         public static void AddGameObject(GameObject prefab, int number = 1)
         {
+            if (!prefab)
+            {
+                return;
+            }
             for (int i = 0; i < number; i++)
             {
                 //实例化prefab
