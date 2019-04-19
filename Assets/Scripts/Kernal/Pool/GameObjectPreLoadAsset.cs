@@ -30,6 +30,7 @@ public class GameObjectPreLoadAssetEditor : Editor
     public override void OnInspectorGUI()
     {
         GameObjectPreLoadAsset script = target as GameObjectPreLoadAsset;
+        EditorGUILayout.LabelField("对象池预加载对象");
         EditorGUILayout.LabelField("数量：" + script.size);
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("+"))

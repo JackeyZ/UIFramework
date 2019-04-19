@@ -21,12 +21,12 @@ namespace UIFramework
         [SerializeField]
         public UIType uiType = new UIType();
 
-        public int num;
+        public string viewName;                 // 面板名称，由UIManager赋值
 
         /// <summary>
         /// 显示状态
         /// </summary>
-        public virtual void Display()
+        public virtual void Open()
         {
             this.gameObject.SetActive(true);
         }

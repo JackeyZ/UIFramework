@@ -18,7 +18,7 @@ using UnityEngine;
 using UnityEditor;
 namespace AssetBundleFramework
 {
-    public class DeleteAssetBundle : MonoBehaviour
+    public class DeleteAssetBundle
     {
         /// <summary>
         /// 删除打出来的AB包
@@ -27,12 +27,19 @@ namespace AssetBundleFramework
         public static void DelAssetBundle()
         {
             string needDeletePath = PathTool.OutPutPath;
-            if (!string.IsNullOrEmpty(needDeletePath))
+            if (Directory.Exists(needDeletePath))
             {
-                Directory.Delete(needDeletePath, true); //true表示允许删除非空文件夹
-                File.Delete(needDeletePath + ".meta");
-                //刷新
-                AssetDatabase.Refresh();
+                if (!string.IsNullOrEmpty(needDeletePath))
+                {
+                    Directory.Delete(needDeletePath, true); //true表示允许删除非空文件夹
+                    File.Delete(needDeletePath + ".meta");
+                    //刷新
+                    AssetDatabase.Refresh();
+                }
+            }
+            else
+            {
+                Debug.Log(needDeletePath + "路径不存在,无需删除");
             }
         }
     }

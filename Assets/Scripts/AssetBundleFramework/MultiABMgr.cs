@@ -84,20 +84,20 @@ namespace AssetBundleFramework
             {
                 // 添加依赖项
                 tempABRelation.AddDependence(depend);
-                // 先加载依赖的AB包并设置被依赖关系
+                // 先加载所有依赖的AB包并设置被依赖关系
                 yield return LoadReference(depend, abName);
             }
 
             //真正加载AB包
             if (_DicSingleABLoaderCache.ContainsKey(abName))
             {
-                yield return _DicSingleABLoaderCache[abName].LoadAssetBundle();
+                yield return _DicSingleABLoaderCache[abName].LoadAssetBundle();  // 一般没作用，除非上一次加载AB包失败了再次加载。
             }
             else
             {
                 _CurrentSingleABLoader = new SingleABLoader(abName, CompleteLoadAB);
                 _DicSingleABLoaderCache.Add(abName, _CurrentSingleABLoader);
-                yield return _CurrentSingleABLoader.LoadAssetBundle();
+                yield return _CurrentSingleABLoader.LoadAssetBundle();          // 加载AB包
             }
         }
 
@@ -127,7 +127,7 @@ namespace AssetBundleFramework
         }
 
         /// <summary>
-        /// 加载（AB包中）资源
+        /// 加载（AB包中）资源, AB包加载完成之后才能调用
         /// </summary>
         /// <param name="abName">AssetBunlde 名称</param>
         /// <param name="assetName">资源名称</param>
@@ -135,12 +135,9 @@ namespace AssetBundleFramework
         /// <returns></returns>
         public UnityEngine.Object LoadAsset(string abName, string assetName, bool isCache = true)
         {
-            foreach (string item_abName in _DicSingleABLoaderCache.Keys)
+            if (_DicSingleABLoaderCache.ContainsKey(abName))
             {
-                if (abName == item_abName)
-                {
-                    return _DicSingleABLoaderCache[item_abName].LoadAsset(assetName, isCache);
-                }
+                return _DicSingleABLoaderCache[abName].LoadAsset(assetName, isCache);
             }
             Debug.LogError(GetType() + "/LoadAsset()/找不到AsetBunder包，无法加载资源，请检查！ abName=" + abName + " assetName=" + assetName);
             return null;

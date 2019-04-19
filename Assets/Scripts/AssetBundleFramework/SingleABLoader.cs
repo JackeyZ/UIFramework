@@ -68,7 +68,7 @@ namespace AssetBundleFramework
         /// <returns></returns>
         public IEnumerator LoadAssetBundle()
         {
-            if(_Loading == false)
+            if(_Loading == false && _Loaded == false)
             {
                 _Loading = true;
                 using (UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(_ABDownLoadPath))

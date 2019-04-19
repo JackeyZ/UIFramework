@@ -31,12 +31,16 @@ namespace AssetBundleFramework {
             ABOutPath = PathTool.OutPutPath;
 
             //判断输出目录文件夹是否存在
-            if (!Directory.Exists(ABOutPath)){
-                Directory.CreateDirectory(ABOutPath);
+            if (Directory.Exists(ABOutPath))
+            {
+                DeleteAssetBundle.DelAssetBundle();
             }
+            Directory.CreateDirectory(ABOutPath);
 
             //打包生成
             BuildPipeline.BuildAssetBundles(ABOutPath, BuildAssetBundleOptions.None, AssetBundleConst.buildTarget);
+            //刷新
+            AssetDatabase.Refresh();
         }
 
     }

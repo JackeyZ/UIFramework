@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using AssetBundleFramework;
 using Kernal;
+using System;
 
 namespace UIFramework
 {
@@ -13,8 +14,8 @@ namespace UIFramework
     public class UIManager : MonoSingleton<UIManager>
     {
         private Dictionary<string, ABAsset> _DicViewPrefabPath = new Dictionary<string, ABAsset>();         // 用于储存窗体预设，key为窗体名称、value是AB资源
-        private Dictionary<string, BaseView> _DicViews = new Dictionary<string, BaseView>();                // 用于缓存所有UI窗体
-        private Dictionary<string, BaseView> _DicShowViews = new Dictionary<string, BaseView>();            // 用于储存当前显示的UI窗体
+        private Dictionary<string, BaseView> _DicViews = new Dictionary<string, BaseView>();                // 用于缓存所有UI窗体（同时只能打开一个的窗体）
+        private Dictionary<string, BaseView> _DicShowViews = new Dictionary<string, BaseView>();            // 用于储存当前显示的UI窗体（同时只能打开一个的窗体）
         private Queue<string> _QueNeedOpen = new Queue<string>();                                           // 需要打开的面板队列
 
 
@@ -71,6 +72,23 @@ namespace UIFramework
             _QueNeedOpen.Enqueue(viewName);
         }
 
+        /// <summary>
+        /// 关闭面板
+        /// </summary>
+        /// <param name="viewName"></param>
+        public void Close(string viewName)
+        {
+            if (string.IsNullOrEmpty(viewName))
+            {
+                return;
+            }
+            if (_DicShowViews.ContainsKey(viewName))
+            {
+                _DicShowViews[viewName].Hiding();
+                _DicShowViews.Remove(viewName);
+            }
+        }
+
         void Update()
         {
             if (!isLoaded)
@@ -85,70 +103,68 @@ namespace UIFramework
         {
             if (_QueNeedOpen.Count > 0)
             {
-                string viewName = _QueNeedOpen.Dequeue();                           // 从需加载队列中读取界面
+                string viewName = _QueNeedOpen.Dequeue();                        // 从需加载队列中读取界面
+
+                // 判断面板是否已经打开
+                if (_DicShowViews.ContainsKey(viewName))
+                {
+                    return;
+                }
+
+                // 尝试从缓存中读取面板实例
+                BaseView baseView = null;
+                _DicViews.TryGetValue(viewName, out baseView);                 
+                if (baseView != null)
+                {
+                    SetViewParent(baseView);
+                    baseView.Open();
+                    _DicShowViews.Add(viewName, baseView);
+                    return;
+                }
+
+                // 如果没有从缓存中找到，则加载预制体，进行实例化
                 if (!_DicViewPrefabPath.ContainsKey(viewName))
                 {
                     Debug.LogError(GetType() + "没有找到面板：" + viewName + "的预制体");
                     return;
                 }
-
                 PrefabLoader.LoadPrefab(_DicViewPrefabPath[viewName], (prefab) => {
-
-                    BaseView tempBaseView = (prefab as GameObject).GetComponent<BaseView>();
-                    if (tempBaseView != null)
+                    GameObject go = Instantiate(prefab as GameObject);
+                    baseView = go.GetComponent<BaseView>();
+                    if (baseView != null)
                     {
-                        UIViewType uiViewType = tempBaseView.uiType.uiViewType;
-
-                        BaseView baseView = null;
-                        GameObject gameObj = null;
-                        switch (uiViewType)
-                        {
-                            case UIViewType.Normal:
-                                _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
-                                if (baseView == null)
-                                {
-                                    gameObj = GameObjectPool.Instance.InstantiateGO(prefab as GameObject);                // 实例化面板
-                                    baseView = gameObj.GetComponent<BaseView>();
-                                    _DicViews.Add(viewName, baseView);
-                                }
-                                else
-                                {
-                                    gameObj = baseView.gameObject;
-                                }
-                                baseView.Display();
-                                _DicShowViews.Add(viewName, baseView);
-                                gameObj.transform.SetParent(_TraNormalRoot, false);
-                                break;
-                            case UIViewType.Fixed:
-                                _DicViews.TryGetValue(viewName, out baseView);                  // 尝试从缓存中读取面板实例
-                                if (baseView == null)
-                                {
-                                    gameObj = GameObjectPool.Instance.InstantiateGO(prefab as GameObject) ;                // 实例化面板
-                                    baseView = gameObj.GetComponent<BaseView>();
-                                    _DicViews.Add(viewName, baseView);
-                                }
-                                else
-                                {
-                                    gameObj = baseView.gameObject;
-                                }
-                                baseView.Display();
-                                _DicShowViews.Add(viewName, baseView);
-                                gameObj.transform.SetParent(_TraFixedRoot, false);
-                                break;
-                            case UIViewType.PopUp:
-                                //gameObj.transform.SetParent(_TraPopUpRoot, false);
-                                break;
-                            default:
-                                //gameObj.transform.SetParent(_TraNormalRoot, false);
-                                break;
-                        }
+                        _DicViews.Add(viewName, baseView);
+                        _DicShowViews.Add(viewName, baseView);
+                        baseView.viewName = viewName;
+                        SetViewParent(baseView);
+                        baseView.Open();
                     }
                     else
                     {
-                        Debug.LogError(viewName + "没有获取到对应的baseview脚本");
+                        Debug.LogError("预制体：" + prefab.name + "上没有挂在baseview脚本");
                     }
                 });
             }
         }// function_end
+
+        void SetViewParent(BaseView baseView)
+        {
+            UIViewType viewType = baseView.uiType.uiViewType;
+            switch (viewType)
+            {
+                case UIViewType.Normal:
+                    baseView.gameObject.transform.SetParent(_TraNormalRoot, false);
+                    break;
+                case UIViewType.Fixed:
+                    baseView.gameObject.transform.SetParent(_TraFixedRoot, false);
+                    break;
+                case UIViewType.PopUp:
+                    baseView.gameObject.transform.SetParent(_TraPopUpRoot, false);
+                    break;
+                default:
+                    baseView.gameObject.transform.SetParent(_TraNormalRoot, false);
+                    break;
+            }
+        }
     }//class_end
 }

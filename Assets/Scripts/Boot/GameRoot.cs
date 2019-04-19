@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UIFramework;
+using AssetBundleFramework;
 
 /// <summary>
 /// 名称：游戏引导
@@ -9,7 +10,17 @@ using UIFramework;
 /// </summary>
 public class GameRoot : MonoBehaviour
 {
-    void Start() {
+    void Start()
+    {
         UIManager.Instance.Open("LogonView");
+        Kernal.GameObjectPool.Instance.PreLoadGameObject();
+    }
+
+    IEnumerator TestLoad()
+    {
+        while (enabled)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 }

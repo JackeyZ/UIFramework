@@ -20,10 +20,12 @@ namespace Kernal
 {
     public class GameObjectPool : MonoSingleton<GameObjectPool>
     {
-        //创建一个字典_Dictionary 键为实例化的对象名（字符串），值为数组（存放多个同样的处于未激活状态的对象）
-        //private static Dictionary<string, ArrayList> _Dictionary = new Dictionary<string, ArrayList>();
+        //创建一个字典_Dictionary 键为实例化的对象名（字符串）
         private static Dictionary<string, Pool> _Dictionary = new Dictionary<string, Pool>();
-        // Use this for initialization
+
+        //是否已经预加载
+        private bool isPreload = false;
+            
         void Awake()
         {
             _Dictionary.Clear();
@@ -31,8 +33,17 @@ namespace Kernal
         void Start()
         {
             StartCoroutine("CheckRedundantGameObjectList"); //开启该协程，用于把长时间不用的对象删除
-            StartCoroutine("PreLoadGameObject");            // 预加载
         }
+
+        public void PreLoadGameObject()
+        {
+            if (!isPreload)
+            {
+                isPreload = true;
+                StartCoroutine("PreLoadGameObjectIEn");            // 预加载
+            }
+        }
+
         public void ClearPool()
         {
             _Dictionary.Clear();
@@ -316,7 +327,7 @@ namespace Kernal
         /// 预先把GameObjectPreLoadAsset配置上的预制体打入对象池
         /// </summary>
         /// <returns></returns>
-        IEnumerator PreLoadGameObject()
+        IEnumerator PreLoadGameObjectIEn()
         {
             string abName = "assetconfigs.u3dassetbundle";
             string assetName = "GameObjectPreLoadAsset";
