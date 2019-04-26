@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 30d45158d1eb91a4a86e2a61a6e6afdd
+guid: 2fa95918b4d7ec54da317d54c09b34dc
 TextureImporter:
   fileIDToRecycleName: {}
   externalObjects: {}
@@ -46,7 +46,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 10, y: 10, z: 10, w: 10}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -75,7 +75,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 8801404dbc70023409eb1308d367263d
+    spriteID: 2e789517e55ea5e438d07255ae36d286
     vertices: []
     indices: 
     edges: []
@@ -84,5 +84,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: ui/images/images/logon
+  assetBundleName: ui/images/logon
   assetBundleVariant: u3dassetbundle

@@ -12,13 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 568ca9d742fcef741a224d4cd6270434, type: 3}
   m_Name: GameObjectPreLoadAsset
   m_EditorClassIdentifier: 
-  size: 4
-  preLoadAssetList:
-  - prefab: {fileID: 0}
-    preLoadNum: 0
-  - prefab: {fileID: 0}
-    preLoadNum: 1
-  - prefab: {fileID: 0}
-    preLoadNum: 1
-  - prefab: {fileID: 0}
-    preLoadNum: 1
+  size: 0
+  preLoadAssetList: []

@@ -38,5 +38,10 @@ namespace AssetBundleFramework
             _ABPath = abName;
             _AssetName = assetName;
         }
+
+        public override string ToString()
+        {
+            return _ABPath + ":" + _AssetName;
+        }
     }
 }

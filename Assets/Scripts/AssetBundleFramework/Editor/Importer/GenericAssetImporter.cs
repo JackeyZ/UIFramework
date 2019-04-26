@@ -51,6 +51,10 @@ namespace AssetBundleFramework
             {
                 int nameIndex = importedAsset.LastIndexOf("/");
                 string path = importedAsset.Substring(0, nameIndex);
+
+                if (path.Contains("/nopack") || path.Contains("/NoPack"))
+                    return;
+
                 if (!needCheckSpriteAtlasDic.ContainsKey(path))
                 {
                     needCheckSpriteAtlasDic.Add(path, importedAsset);
@@ -166,6 +170,7 @@ namespace AssetBundleFramework
             }
             TextureImporter textureImporter = assetImporter as TextureImporter;
             if (textureImporter.assetPath.Contains("/nopack")
+                || textureImporter.assetPath.Contains("/NoPack")
                 || !textureImporter.assetPath.StartsWith(PathTool.ImagesDir))
             {
                 textureImporter.spritePackingTag = string.Empty;

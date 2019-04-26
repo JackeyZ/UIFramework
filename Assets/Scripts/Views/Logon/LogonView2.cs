@@ -7,15 +7,15 @@ using UIFramework;
 /// 名称：登录面板脚本
 /// 作用：
 /// </summary>
-public class LogonView : BaseView
+public class LogonView2 : BaseView
 {
     void Start()
     {
     }
 
-    public void OpenLogon2()
+    public void OpenLogon()
     {
-        UIFramework.UIManager.Instance.Open("ui/prefabs/logon.u3dassetbundle", "LogonPanel2");
+        UIFramework.UIManager.Instance.Open("ui/prefabs/logon.u3dassetbundle", "LogonPanel");
     }
     public void OpenItemDisplay()
     {

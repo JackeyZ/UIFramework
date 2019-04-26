@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9de07f63c8264ce428410acb1c8acc8f
+guid: ea1f1cc74789d3445b5a5985ff1e542d
 TextureImporter:
   fileIDToRecycleName: {}
   externalObjects: {}
@@ -75,7 +75,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 8397f2a2ca8d1f4459a6e95e882a3cc2
+    spriteID: b26a0e16286a15a408240c4f14b5571b
     vertices: []
     indices: 
     edges: []
@@ -84,5 +84,5 @@ TextureImporter:
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 
-  assetBundleName: ui/images/images/logon
+  assetBundleName: ui/images/images
   assetBundleVariant: u3dassetbundle

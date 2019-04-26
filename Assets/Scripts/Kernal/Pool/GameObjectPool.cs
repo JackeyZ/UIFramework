@@ -288,7 +288,7 @@ namespace Kernal
             }
             //不销毁而是取消激活
             go.SetActive(false);
-            go.transform.SetParent(gameObject.transform);
+            go.transform.SetParent(gameObject.transform, false);
             go = null;
         }
 

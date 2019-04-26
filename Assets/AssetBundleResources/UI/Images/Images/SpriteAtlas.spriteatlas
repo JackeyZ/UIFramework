@@ -130,6 +130,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 8bd193858ab746b4fb24d9c0d2a9318c, type: 3}
     - {fileID: 21300000, guid: ce79d84f1f1286f478ecedd7c6ab7ece, type: 3}
     - {fileID: 21300000, guid: c28e5dcd2cf1daa498f0b475f624f81e, type: 3}
+    - {fileID: 21300000, guid: ea1f1cc74789d3445b5a5985ff1e542d, type: 3}
     - {fileID: 21300000, guid: ede40653b6d2b4e489921ba42aee277f, type: 3}
     - {fileID: 21300000, guid: b2555aadfdb224b46be60b641f6689c9, type: 3}
     - {fileID: 21300000, guid: fde2c563d3c9bfa45ad5179ad1cb65f8, type: 3}
@@ -335,7 +336,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 091b9c54dbe9fb44abc44792db303f57, type: 3}
     - {fileID: 21300000, guid: f9bebb394bedd494f95a85ed35b7b19b, type: 3}
     - {fileID: 21300000, guid: b41fd69809c27124aa18b93fb65e6ee9, type: 3}
-    totalSpriteSurfaceArea: 1858210
+    totalSpriteSurfaceArea: 1862970
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -476,6 +477,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5f81d497f1aab2d4a95bd5dc51e56a39, type: 3}
   - {fileID: 21300000, guid: cfb5d4a7a1dc2404988aed46214abb64, type: 3}
   - {fileID: 21300000, guid: db9505c7347508147b1d64e440a1284a, type: 3}
+  - {fileID: 21300000, guid: ea1f1cc74789d3445b5a5985ff1e542d, type: 3}
   - {fileID: 21300000, guid: 6d081dc723a373844a9d2d5405ca887d, type: 3}
   - {fileID: 21300000, guid: 7f9a01d7568b9794b91240e172df2222, type: 3}
   - {fileID: 21300000, guid: 08dc07d7ddcac3b4197b187709c6544d, type: 3}
@@ -782,6 +784,7 @@ SpriteAtlas:
   - bg_attackmode_bg_0
   - MaskCircle02
   - progress_14_2
+  - bt_close
   - xunlu_bg
   - Icon_System_MarryMe
   - arrow_06

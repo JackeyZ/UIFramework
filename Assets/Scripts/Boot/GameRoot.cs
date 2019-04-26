@@ -12,7 +12,7 @@ public class GameRoot : MonoBehaviour
 {
     void Start()
     {
-        UIManager.Instance.Open("LogonView");
+        UIManager.Instance.Open("ui/prefabs/logon.u3dassetbundle","LogonPanel");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
     }
 
