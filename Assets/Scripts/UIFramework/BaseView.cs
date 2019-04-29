@@ -23,7 +23,9 @@ namespace UIFramework
         public UIType uiType = new UIType();
 
         [SerializeField]
-        private ViewStatus _viewStatus = ViewStatus.Close;
+        private ViewOpenStatus _viewOpenStatus = ViewOpenStatus.Close;  // 打开状态
+        [SerializeField]
+        private ViewShowStatus _viewShowStatus = ViewShowStatus.Hide;   // 显示状态，只有打开面板之后这个状态才有用
 
         private NameTable _comNameTable;
 
@@ -43,15 +45,7 @@ namespace UIFramework
                 dataStruct = value;
             }
         }
-
-        public ViewStatus ViewStatus
-        {
-            get
-            {
-                return _viewStatus;
-            }
-        }
-
+        
         /// <summary>
         /// 获得NameTable绑定的Gameobject
         /// </summary>
@@ -68,18 +62,13 @@ namespace UIFramework
             }
         }
 
+        public ViewOpenStatus ViewOpenStatus{ get { return _viewOpenStatus; } }
+
+        public ViewShowStatus ViewShowStatus { get { return _viewShowStatus; } }
+
         public virtual void Open()
         {
-            _viewStatus = ViewStatus.Open;
-        }
-
-        /// <summary>
-        /// 只允许UIManager调用，显示状态
-        /// </summary>
-        public virtual void Display()
-        {
-            this.gameObject.SetActive(true);
-            _viewStatus = ViewStatus.Show;
+            _viewOpenStatus = ViewOpenStatus.Open;
         }
 
         /// <summary>
@@ -91,12 +80,21 @@ namespace UIFramework
         }
 
         /// <summary>
+        /// 只允许UIManager调用，显示状态
+        /// </summary>
+        public virtual void Display()
+        {
+            this.gameObject.SetActive(true);
+            _viewShowStatus = ViewShowStatus.Show;
+        }
+
+        /// <summary>
         /// 只允许UIManager调用，隐藏面板
         /// </summary>
         public virtual void Hide()
         {
             this.gameObject.SetActive(false);
-            _viewStatus = ViewStatus.Hide;
+            _viewShowStatus = ViewShowStatus.Hide;
         }
 
         /// <summary>
@@ -105,7 +103,8 @@ namespace UIFramework
         public virtual void Close()
         {
             this.gameObject.SetActive(false);
-            _viewStatus = ViewStatus.Close;
+            _viewShowStatus = ViewShowStatus.Hide;
+            _viewOpenStatus = ViewOpenStatus.Close;
         }
 
         /// <summary>
@@ -139,24 +138,35 @@ namespace UIFramework
         {
             //获取脚本对象
             BaseView script = target as BaseView;
-            ViewStatus viewStatus = script.ViewStatus;
+
+            // 面板打开状态
+            ViewOpenStatus viewStatus = script.ViewOpenStatus;
             switch (viewStatus)
             {
-                case ViewStatus.Close:
-                    EditorGUILayout.LabelField("面板状态：关闭");
+                case ViewOpenStatus.Close:
+                    EditorGUILayout.LabelField("面板打开状态：关闭");
                     break;
-                case ViewStatus.Open:
-                    EditorGUILayout.LabelField("面板状态：打开");
-                    break;
-                case ViewStatus.Show:
-                    EditorGUILayout.LabelField("面板状态：显示");
-                    break;
-                case ViewStatus.Hide:
-                    EditorGUILayout.LabelField("面板状态：隐藏");
+                case ViewOpenStatus.Open:
+                    EditorGUILayout.LabelField("面板打开状态：打开");
+
+                    // 面板显示状态
+                    ViewShowStatus viewShowStatus = script.ViewShowStatus;
+                    switch (viewShowStatus)
+                    {
+                        case ViewShowStatus.Show:
+                            EditorGUILayout.LabelField("面板显示状态：显示");
+                            break;
+                        case ViewShowStatus.Hide:
+                            EditorGUILayout.LabelField("面板显示状态：隐藏");
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;
             }
+
             script.uiType.uiViewType = (UIViewType)EditorGUILayout.EnumPopup("面板类型：", script.uiType.uiViewType);
             if (script.uiType.uiViewType == UIViewType.Normal)
             {

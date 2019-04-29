@@ -605,7 +605,6 @@ GameObject:
   - component: {fileID: 4763483780022285343}
   - component: {fileID: 4763483780022285336}
   - component: {fileID: 2355731108343680221}
-  - component: {fileID: 7935349232203473907}
   - component: {fileID: 8840143362223453505}
   m_Layer: 5
   m_Name: LogonPanel2
@@ -683,23 +682,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9af0248aa6133364985b08bbc9762e46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiType:
-    uiViewType: 0
-    uiViewShowMode: 0
-    uiViewLucenyType: 0
-  _viewStatus: 0
---- !u!114 &7935349232203473907
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4763483780022285338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89b9a289dc96f9a44ac2dc0e5430a5ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   uiType:

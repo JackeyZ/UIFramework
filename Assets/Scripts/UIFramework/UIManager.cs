@@ -81,7 +81,7 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 跳转到其他面板
+        /// 外部调用，跳转到其他面板
         /// </summary>
         /// <param name="fromAsset">哪个面板资源调用的</param>
         /// <param name="asset">ab资源</param>
@@ -267,6 +267,7 @@ namespace UIFramework
             ABAsset asset = new ABAsset(abName, assetName);
             return IsDisplay(asset);
         }
+
         /// <summary>
         /// 面板是否打开，打开不一定显示，也可能是隐藏状态
         /// </summary>
@@ -275,6 +276,22 @@ namespace UIFramework
         public bool IsOpen(BaseView baseView)
         {
             return _ListOpenView.Contains(baseView);
+        }
+        public bool IsOpen(ABAsset asset)
+        {
+            foreach (var baseView in _ListOpenView)
+            {
+                if(baseView.DataStruct.asset == asset) 
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsOpen(string abName, string assetName)
+        {
+            return IsOpen(new ABAsset(abName, assetName));
         }
 
         #region 私有方法
@@ -436,6 +453,7 @@ namespace UIFramework
             baseView.Display();
         }
 
+        #region 私有工具函数
         /// <summary>
         /// 设置面板父节点
         /// </summary>
@@ -499,6 +517,8 @@ namespace UIFramework
                     break;
             }
         }
+        #endregion
+
         #endregion
     }//class_end
 

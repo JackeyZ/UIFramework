@@ -50,10 +50,13 @@ namespace UIFramework
         Pentrate,           //可穿透
     }
 
-    public enum ViewStatus
+    public enum ViewOpenStatus
     {
         Close,          // 关闭状态（默认）
         Open,           // 打开状态（显示和隐藏状态也属于打开状态）
+    }
+    public enum ViewShowStatus
+    {
         Show,           // 显示状态
         Hide,           // 隐藏状态
     }
