@@ -20,14 +20,25 @@ SpriteAtlas:
       readable: 0
       crunchedCompression: 0
       sRGB: 1
-    platformSettings: []
+    platformSettings:
+    - serializedVersion: 2
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 4096
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
     packingSettings:
       serializedVersion: 2
       padding: 4
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 1
-      enableTightPacking: 1
+      enableTightPacking: 0
     variantMultiplier: 1
     packables:
     - {fileID: 21300000, guid: 050ab0e68d24072489c2e902b65500f7, type: 3}
@@ -272,7 +283,6 @@ SpriteAtlas:
     - {fileID: 21300000, guid: f857a4427f31aae4983ae12dd20d95b4, type: 3}
     - {fileID: 21300000, guid: 5b88ec475066de04c9add51b3fba723a, type: 3}
     - {fileID: 21300000, guid: 7bb1e20106ff9e04f817755e43da302f, type: 3}
-    - {fileID: 21300000, guid: 66193df91ef652446a963a5ce1560e39, type: 3}
     - {fileID: 21300000, guid: 72ff232b6b6a8774cb6aa828d59e75fc, type: 3}
     - {fileID: 21300000, guid: ea67398494e499d4bb6fc9ddc7078741, type: 3}
     - {fileID: 21300000, guid: 9c6bafe3ab91563498e0ed92db890483, type: 3}
@@ -336,7 +346,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 091b9c54dbe9fb44abc44792db303f57, type: 3}
     - {fileID: 21300000, guid: f9bebb394bedd494f95a85ed35b7b19b, type: 3}
     - {fileID: 21300000, guid: b41fd69809c27124aa18b93fb65e6ee9, type: 3}
-    totalSpriteSurfaceArea: 1862970
+    totalSpriteSurfaceArea: 1855574
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -521,7 +531,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 75ec19b97a20c7b40a67606cc1ab1747, type: 3}
   - {fileID: 21300000, guid: ff15eac976f898545b6e4c17de628d16, type: 3}
   - {fileID: 21300000, guid: a7ba4dc9a356d684ab40ee252f7dca94, type: 3}
-  - {fileID: 21300000, guid: 66193df91ef652446a963a5ce1560e39, type: 3}
   - {fileID: 21300000, guid: 89856a0a44827db40a0a0482526946be, type: 3}
   - {fileID: 21300000, guid: e6020e0a0c451d144a76ca2babc35e17, type: 3}
   - {fileID: 21300000, guid: 4737661ac80419746920d43b8a3fbd9a, type: 3}
@@ -800,7 +809,7 @@ SpriteAtlas:
   - head_icon_3
   - bg_attackmode_bg_5
   - ziti_jiu
-  - skill_bg_3
+  - skill_bg_2
   - bg_yin
   - Font_shuang
   - Slipping _S
@@ -828,7 +837,6 @@ SpriteAtlas:
   - head_icon_13
   - safeTips_bg_1
   - bg_head_3
-  - Progress10
   - bg_mirror_mode_05
   - icon_server_hongbao
   - Skill_4001

@@ -303,7 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a87ec98c8e6e94443970b445da853698, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &1811936458
+--- !u!1001 &1788669139
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -314,11 +314,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: UICanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 3971436309184908642, guid: 4dd53eed3693d6f489fc22a0bb55e26d,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6563279422828528071, guid: 4dd53eed3693d6f489fc22a0bb55e26d,
         type: 3}

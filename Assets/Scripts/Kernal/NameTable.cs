@@ -1,124 +1,162 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 #if UNITY_EDITOR
+using UnityEditorInternal;
 using UnityEditor;
 #endif
 
 public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
 {
     [SerializeField]
-    private int _Size = 0;
-    [SerializeField]
-    private List<string> _keys;
-    [SerializeField]
-    private List<GameObject> _values;
+    private List<NameTableElement> nameTableElementList = new List<NameTableElement>();
 
     [SerializeField]
-    public Dictionary<string, GameObject> _DicGameObject;
+    private Dictionary<string, GameObject> dicGameObject;
+
+    public Dictionary<string, GameObject> DicGameObject
+    {
+        get
+        {
+            return dicGameObject;
+        }
+
+        set
+        {
+            dicGameObject = value;
+        }
+    }
 
     public GameObject Find(string name)
     {
-        return _DicGameObject[name];
+        return DicGameObject[name];
     }
-    
+
     public void OnBeforeSerialize()
     {
-         
+
     }
 
     // After the serialization we create the dictionary from the two lists
     public void OnAfterDeserialize()
     {
-        if (_DicGameObject == null)
+        if (DicGameObject == null)
         {
-            _DicGameObject = new Dictionary<string, GameObject>();
+            DicGameObject = new Dictionary<string, GameObject>();
         }
-        _DicGameObject.Clear();
-        int count = Mathf.Min(_keys.Count, _values.Count);
-        for (int i = 0; i < count; ++i)
+        DicGameObject.Clear();
+        for (int i = 0; i < nameTableElementList.Count; ++i)
         {
-            if (!_DicGameObject.ContainsKey(_keys[i]))
-            {
-                _DicGameObject.Add(_keys[i], _values[i]);
-            }
+            if (DicGameObject.ContainsKey(nameTableElementList[i].key))
+                continue;
+            DicGameObject.Add(nameTableElementList[i].key, nameTableElementList[i].value);
         }
     }
 
+    [Serializable]
+    public class NameTableElement
+    {
+        public string key;
+        public GameObject value;
+        public NameTableElement(string key, GameObject go = null)
+        {
+            this.key = key;
+            this.value = go;
+        }
+    }
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(NameTable))]
     public class NameTableEditor : Editor
     {
+        ReorderableList reorderableList;
+        Color? elementDefaultColor = null;
+        private void OnEnable()
+        {
+            reorderableList = new ReorderableList(serializedObject,
+                serializedObject.FindProperty("nameTableElementList"),
+                true, true, true, true);
+            if (elementDefaultColor == null)
+            {
+                elementDefaultColor = GUI.color;
+            }
+        }
+
         public override void OnInspectorGUI()
         {
-            //获取脚本对象
+            serializedObject.Update();
             NameTable script = target as NameTable;
-            EditorGUILayout.LabelField("数量："+ script._Size);
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("+"))
+
+            SerializedProperty prop = serializedObject.FindProperty("nameTableElementList");
+            reorderableList.drawElementCallback = (rect, index, isActive, isFocused) => {
+                EditorGUI.PropertyField(rect, prop.GetArrayElementAtIndex(index));
+            };
+
+            reorderableList.drawHeaderCallback = (Rect rect) =>
             {
-                Undo.RegisterCompleteObjectUndo(script, "NameTable");
-                script._Size += 1;
-            }
-            if (GUILayout.Button("-"))
+                GUI.Label(rect, "GameObjectKeys");
+            };
+
+            reorderableList.onAddCallback = (ReorderableList list) =>
             {
-                Undo.RegisterCompleteObjectUndo(script, "NameTable");
-                script._Size -= 1;
-                if (script._Size < 0)
+                script.nameTableElementList.Add(new NameTableElement(""));
+            };
+
+            reorderableList.onRemoveCallback = (ReorderableList list) =>
+            {
+                if (EditorUtility.DisplayDialog("警告", "是否真的要删除" + script.nameTableElementList[list.index].key + "？", "是", "否"))
                 {
-                    script._Size = 0;
+                    ReorderableList.defaultBehaviours.DoRemoveButton(list);
                 }
-            }
+            };
+
+            reorderableList.drawElementBackgroundCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+            {
+                if (index == -1)
+                {
+                    return;
+                }
+                bool repeat = false;
+                string key = script.nameTableElementList[index].key;
+                for (int i = 0; i < script.nameTableElementList.Count ; i++)
+                {
+                    if (i != index && key.Equals(script.nameTableElementList[i].key))
+                    {
+                        repeat = true;
+                    }
+                }
+                if (repeat)
+                {
+                    GUI.color = new Color(1f, 0f, 0f, 0.8f);
+                }
+                else
+                {
+                    GUI.color = (Color)elementDefaultColor;
+                }
+                ReorderableList.defaultBehaviours.DrawElementBackground(rect, index, isActive, isFocused, true);
+            };
+
+            reorderableList.DoLayoutList();
+            serializedObject.ApplyModifiedProperties();
+            
             if (GUILayout.Button("排序"))
             {
                 Undo.RegisterCompleteObjectUndo(script, "NameTable");
-                List<string> keyList = script._keys;
-                List<GameObject> valueList = script._values;
                 // 冒泡
-                for (int key1 = 0; key1 < keyList.Count; key1++)
+                for (int i = 0; i < script.nameTableElementList.Count; i++)
                 {
-                    for (int key = 0; key < keyList.Count - key1 - 1; key++)
+                    for (int j = 0; j < script.nameTableElementList.Count - i - 1; j++)
                     {
-                        if(keyList[key].CompareTo(keyList[key + 1]) > 0)
+                        if (script.nameTableElementList[j].key.CompareTo(script.nameTableElementList[j + 1].key) > 0)
                         {
-                            Swap(keyList, key, key + 1);
-                            Swap(valueList, key, key + 1);
+                            Swap(script.nameTableElementList, j, j + 1);
                         }
                     }
                 }
 
             }
-            EditorGUILayout.EndHorizontal();
-            if (script._keys == null)
-            {
-                script._keys = new List<string>();
-                script._values = new List<GameObject>();
-            }
-            int i = 0;
-            for (i = 0; i < script._Size; i++)
-            {
-                if (i >= script._keys.Count)
-                {
-                    script._keys.Add("");
-                    script._values.Add(null);
-                }
-                EditorGUILayout.BeginHorizontal();
-                script._keys[i] = EditorGUILayout.TextField(script._keys[i]);
-                script._values[i] = EditorGUILayout.ObjectField(script._values[i], typeof(GameObject), true) as GameObject;
-                if (GUILayout.Button("X"))
-                {
-                    Undo.RegisterCompleteObjectUndo(script, "NameTable");
-                    script._Size -= 1;
-                    script._keys.RemoveAt(i);
-                }
-                EditorGUILayout.EndHorizontal();
-            }
-            script._keys.RemoveRange(i, script._keys.Count - i);
-            script._values.RemoveRange(i, script._values.Count - i);
-
-
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);
@@ -132,5 +170,37 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
         }
     }
 
+    [CustomPropertyDrawer(typeof(NameTableElement))]
+    public class NameTableElementDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            //创建一个属性包装器，用于将常规GUI控件与SerializedProperty一起使用
+            using (new EditorGUI.PropertyScope(position, label, property))
+            {
+                //输入框高度，默认一行的高度
+                position.height = EditorGUIUtility.singleLineHeight;
+
+
+                Rect keyRect = new Rect(position)
+                {
+                    width = position.width / 2.1f,
+                };
+
+                Rect valueRect = new Rect(position)
+                {
+                    x = position.width / 2 + 30,
+                    width = position.width / 2.1f,
+                };
+
+                //找到每个属性的序列化值
+                SerializedProperty keyProperty = property.FindPropertyRelative("key");
+                SerializedProperty valueProperty = property.FindPropertyRelative("value");
+                
+                keyProperty.stringValue = EditorGUI.TextField(keyRect, keyProperty.stringValue);
+                EditorGUI.PropertyField(valueRect, valueProperty, GUIContent.none);
+            }
+        }
+    }
 #endif
 }

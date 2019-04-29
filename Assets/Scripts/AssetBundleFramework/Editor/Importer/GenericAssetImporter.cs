@@ -216,6 +216,13 @@ namespace AssetBundleFramework
             }
 
             SpriteAtlas atlas = new SpriteAtlas();
+
+            // 图集设置
+            SpriteAtlasPackingSettings packingSettings = atlas.GetPackingSettings();
+            packingSettings.padding = 4;    //图片之间的间距
+            packingSettings.enableTightPacking = false;
+            atlas.SetPackingSettings(packingSettings);
+
             FileInfo fileInfo = new FileInfo(assetPath);
             // 这里我使用的是png图片，已经生成Sprite精灵了
             foreach (var item in parentDirInfo.GetFileSystemInfos())

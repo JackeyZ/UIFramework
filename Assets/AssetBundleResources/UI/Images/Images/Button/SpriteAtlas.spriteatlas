@@ -27,7 +27,7 @@ SpriteAtlas:
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 1
-      enableTightPacking: 1
+      enableTightPacking: 0
     variantMultiplier: 1
     packables:
     - {fileID: 21300000, guid: bda3a498465df3942937a62362ea3ee6, type: 3}
@@ -39,6 +39,7 @@ SpriteAtlas:
     - {fileID: 21300000, guid: a070876256361554f99bb3f92100b5e3, type: 3}
     - {fileID: 21300000, guid: 825dc5a9335644447a3331a76a66046d, type: 3}
     - {fileID: 21300000, guid: 4eaff13ee26ee9f49b18c1c5651eb6c8, type: 3}
+    - {fileID: 21300000, guid: 1a25d5661ba4ba44596832bf52fb2102, type: 3}
     - {fileID: 21300000, guid: 5d39915852009064ba5bbba7e0c16111, type: 3}
     - {fileID: 21300000, guid: 7b4fb627bef38f84cb757ac6d1a0a405, type: 3}
     - {fileID: 21300000, guid: 37209b2452891f9479a96755e0feb08a, type: 3}
@@ -86,7 +87,6 @@ SpriteAtlas:
     - {fileID: 21300000, guid: 3b0ceedbd024e584b8ac52a1f32031ed, type: 3}
     - {fileID: 21300000, guid: d9c0a8afdf6351242ae8e6daa6d09870, type: 3}
     - {fileID: 21300000, guid: 0885dc43a9c881e499c9b4700ceda086, type: 3}
-    - {fileID: 21300000, guid: 1a25d5661ba4ba44596832bf52fb2102, type: 3}
     - {fileID: 21300000, guid: 6e4e58c076935f64d9ebc7fc4a8b12b9, type: 3}
     - {fileID: 21300000, guid: d4bb7f93356abee4abaa4151ce53218b, type: 3}
     - {fileID: 21300000, guid: 17d6bda4c6cbb1b4ab76975c4ecf3ada, type: 3}
@@ -177,7 +177,7 @@ SpriteAtlas:
   - Function_yugao_Foreworld_Word
   - Function_yugao_belt
   - Function_yugao_FaZhen
-  - Function_yugao_Kf_Battle
+  - Function1_yugao_Kf_Battle
   - Function_Open_Forge
   - Function_yugao_Foot
   - Function_yugao_Baoju_Word

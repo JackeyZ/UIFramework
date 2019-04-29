@@ -18,7 +18,7 @@ namespace UIFramework
         private Dictionary<string, BaseView> _DicFixedViews = new Dictionary<string, BaseView>();                   // 用于缓存所有固定UI窗体
         private Dictionary<string, BaseView> _DicShowFixedViews = new Dictionary<string, BaseView>();               // 用于储存当前显示的固定UI窗体(show窗体)
 
-        private List<BaseView> _ListOpenView = new List<BaseView>();                                                // 当前Open的窗体列表（不包括popup的面板）
+        private List<BaseView> _ListOpenView = new List<BaseView>();                                                // 当前Open的窗体有序列表（不包括popup的面板）
 
         private Queue<ViewOpenStruct> _QueNeedOpen = new Queue<ViewOpenStruct>();                                   // 需要打开的面板队列
 
@@ -81,7 +81,23 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 关闭面板，只对normal和fixed有效
+        /// 跳转到其他面板
+        /// </summary>
+        /// <param name="fromAsset">哪个面板资源调用的</param>
+        /// <param name="asset">ab资源</param>
+        /// <param name="data">数据</param>
+        public void Jump(ABAsset fromAsset, ABAsset asset, object data = null)
+        {
+            Close(fromAsset.ToString());
+            Open(asset, data);
+        }
+        public void Jump(string fromAbName, string fromAssetName, string abName, string assetName, object data = null)
+        {
+            Jump(new ABAsset(fromAbName, fromAssetName), new ABAsset(abName, assetName));
+        }
+
+        /// <summary>
+        /// 外部调用,关闭面板，只对normal和fixed有效
         /// </summary>
         /// <param name="viewKey"></param>
         public void Close(string viewKey)
@@ -99,9 +115,21 @@ namespace UIFramework
                 CloseView(_DicShowFixedViews[viewKey]);
             }
         }
+        public void Close(ABAsset asset)
+        {
+            Close(asset.ToString());
+        }
+        public void Close(string abName, string assetName)
+        {
+            if (string.IsNullOrEmpty(abName) || string.IsNullOrEmpty(assetName))
+            {
+                return;
+            }
+            Close(new ABAsset(abName, assetName));
+        }
 
         /// <summary>
-        /// 根据UI类型，关闭所有对应的UI
+        /// 外部调用，根据UI类型，关闭所有对应的UI
         /// </summary>
         /// <param name="viewType"></param>
         public void CloseViewByUIType(UIViewType viewType = UIViewType.Normal)
@@ -151,7 +179,7 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 关闭所有UI
+        /// 外部调用，关闭所有UI
         /// </summary>
         public void CloseAllView()
         {
@@ -160,6 +188,10 @@ namespace UIFramework
             CloseViewByUIType(UIViewType.Fixed);
         }
 
+        /// <summary>
+        /// 外部调用， 根据类型隐藏面板
+        /// </summary>
+        /// <param name="viewType"></param>
         public void HideViewByUIType(UIViewType viewType = UIViewType.Normal)
         {
             switch (viewType)
@@ -204,6 +236,9 @@ namespace UIFramework
                     break;
             }
         }
+        /// <summary>
+        /// 隐藏所有面板，外部调用
+        /// </summary>
         public void HideAllView()
         {
             HideViewByUIType(UIViewType.PopUp);
@@ -242,6 +277,7 @@ namespace UIFramework
             return _ListOpenView.Contains(baseView);
         }
 
+        #region 私有方法
         void Update()
         {
             if (!isLoaded)
@@ -251,7 +287,6 @@ namespace UIFramework
             LoadView();
         }
 
-        #region 私有方法
         // 根据需加载队列，加载面板
         void LoadView()
         {
@@ -314,6 +349,97 @@ namespace UIFramework
             }
         }// function_end
 
+        // 关闭面板
+        void CloseView(BaseView baseView)
+        {
+            switch (baseView.uiType.uiViewType)
+            {
+                case UIViewType.Normal:
+                    if (_DicShowNormalViews.ContainsKey(baseView.DataStruct.asset.ToString()))
+                        _DicShowNormalViews.Remove(baseView.DataStruct.asset.ToString());
+                    break;
+                case UIViewType.Fixed:
+                    if (_DicShowFixedViews.ContainsKey(baseView.DataStruct.asset.ToString()))
+                        _DicShowFixedViews.Remove(baseView.DataStruct.asset.ToString());
+                    break;
+            }
+            _ListOpenView.Remove(baseView);
+            baseView.Close();
+
+            // 当隐藏其他面板关闭的时候，按顺序逐个显示所有隐藏的面板
+            if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.uiType.uiViewShowMode == UIViewShowMode.HideOther)
+            {
+                List<BaseView> tempList = new List<BaseView>();
+                foreach (var item in _ListOpenView)
+                {
+                    tempList.Add(item);
+                }
+                
+                foreach (BaseView item in tempList)
+                {
+                    DisplayView(item, item.DataStruct);
+                }
+            }
+        }
+
+        // 隐藏面板
+        void HideView(BaseView baseView)
+        {
+            switch (baseView.uiType.uiViewType)
+            {
+                case UIViewType.Normal:
+                    if (_DicShowNormalViews.ContainsKey(baseView.DataStruct.asset.ToString()))
+                        _DicShowNormalViews.Remove(baseView.DataStruct.asset.ToString());
+                    break;
+                case UIViewType.Fixed:
+                    if (_DicShowFixedViews.ContainsKey(baseView.DataStruct.asset.ToString()))
+                        _DicShowFixedViews.Remove(baseView.DataStruct.asset.ToString());
+                    break;
+            }
+            baseView.Hide();
+        }
+
+        // 打开面板，面板未打开才允许调用该函数
+        void OpenView(BaseView baseView, ViewOpenStruct dataStruct)
+        {
+            if (!IsOpen(baseView))
+            {
+                if(baseView.uiType.uiViewType != UIViewType.PopUp)
+                {
+                    _ListOpenView.Add(baseView);
+                }
+                baseView.Open();
+            }
+            DisplayView(baseView, dataStruct);
+        }
+
+        // 显示面板
+        void DisplayView(BaseView baseView, ViewOpenStruct dataStruct)
+        {
+            // 如果面板的展示类型是隐藏其他类型，则隐藏其他所有显示的面板
+            if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.uiType.uiViewShowMode == UIViewShowMode.HideOther)
+            {
+                HideAllView();
+            }
+
+            baseView.DataStruct = dataStruct;
+            AddViewToShowDic(dataStruct.asset, baseView);
+
+            // 把面板放到列表最后
+            if (_ListOpenView.Contains(baseView))
+            {
+                _ListOpenView.Remove(baseView);
+                _ListOpenView.Add(baseView);
+            }
+            baseView.transform.SetSiblingIndex(baseView.transform.parent.childCount);
+
+            baseView.Display();
+        }
+
+        /// <summary>
+        /// 设置面板父节点
+        /// </summary>
+        /// <param name="baseView"></param>
         void SetViewParent(BaseView baseView)
         {
             UIViewType viewType = baseView.uiType.uiViewType;
@@ -365,104 +491,13 @@ namespace UIFramework
             {
                 case UIViewType.Normal:
                     if (!_DicShowNormalViews.ContainsKey(asset.ToString()))
-                         _DicShowNormalViews.Add(asset.ToString(), view);
+                        _DicShowNormalViews.Add(asset.ToString(), view);
                     break;
                 case UIViewType.Fixed:
                     if (!_DicShowFixedViews.ContainsKey(asset.ToString()))
                         _DicShowFixedViews.Add(asset.ToString(), view);
                     break;
             }
-        }
-
-        // 关闭面板
-        void CloseView(BaseView baseView)
-        {
-            switch (baseView.uiType.uiViewType)
-            {
-                case UIViewType.Normal:
-                    if (_DicShowNormalViews.ContainsKey(baseView.DataStruct.asset.ToString()))
-                        _DicShowNormalViews.Remove(baseView.DataStruct.asset.ToString());
-                    break;
-                case UIViewType.Fixed:
-                    if (_DicShowFixedViews.ContainsKey(baseView.DataStruct.asset.ToString()))
-                        _DicShowFixedViews.Remove(baseView.DataStruct.asset.ToString());
-                    break;
-            }
-            _ListOpenView.Remove(baseView);
-            baseView.Close();
-
-            // 当隐藏其他面板关闭的时候，按顺序显示所有隐藏的面板
-            if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.uiType.uiViewShowMode == UIViewShowMode.HideOther)
-            {
-                List<BaseView> tempList = new List<BaseView>();
-                foreach (var item in _ListOpenView)
-                {
-                    tempList.Add(item);
-                }
-                
-                foreach (BaseView item in tempList)
-                {
-                    DisplayView(item, item.DataStruct);
-                }
-            }
-        }
-
-        // 隐藏面板
-        void HideView(BaseView baseView)
-        {
-            switch (baseView.uiType.uiViewType)
-            {
-                case UIViewType.Normal:
-                    if (_DicShowNormalViews.ContainsKey(baseView.DataStruct.asset.ToString()))
-                        _DicShowNormalViews.Remove(baseView.DataStruct.asset.ToString());
-                    break;
-                case UIViewType.Fixed:
-                    if (_DicShowFixedViews.ContainsKey(baseView.DataStruct.asset.ToString()))
-                        _DicShowFixedViews.Remove(baseView.DataStruct.asset.ToString());
-                    break;
-            }
-            baseView.Hide();
-        }
-
-        // 打开面板，面板未打开才允许调用该函数
-        void OpenView(BaseView baseView, ViewOpenStruct dataStruct)
-        {
-            if (!IsOpen(baseView))
-            {
-                if(baseView.uiType.uiViewType != UIViewType.PopUp)
-                {
-                    _ListOpenView.Add(baseView);
-                }
-                baseView.Open();
-            }
-            DisplayView(baseView, dataStruct);
-        }
-
-        // 显示面板
-        void DisplayView(BaseView baseView, ViewOpenStruct dataStruct)
-        {
-            //if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.fullScreen)     // 如果是普通面板以及是全屏面板，则隐藏其他所有普通面板
-            //{
-            //    HideViewByUIType(UIViewType.Normal);
-            //}
-
-            if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.uiType.uiViewShowMode == UIViewShowMode.HideOther)
-            {
-                HideAllView();
-            }
-
-            baseView.DataStruct = dataStruct;
-            AddViewToShowDic(dataStruct.asset, baseView);
-
-            // 把面板放到列表最后
-            if (_ListOpenView.Contains(baseView))
-            {
-                _ListOpenView.Remove(baseView);
-                _ListOpenView.Add(baseView);
-            }
-            baseView.transform.SetSiblingIndex(baseView.transform.parent.childCount);
-
-            baseView.Display();
         }
         #endregion
     }//class_end

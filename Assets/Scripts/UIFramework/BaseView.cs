@@ -15,6 +15,7 @@ namespace UIFramework
     ///     2、
     ///
     /// </summary>
+    [RequireComponent(typeof(NameTable))]
     public class BaseView : MonoBehaviour
     {
         /*字段*/
@@ -22,10 +23,11 @@ namespace UIFramework
         public UIType uiType = new UIType();
 
         [SerializeField]
-        public bool fullScreen = true;
-
-        [SerializeField]
         private ViewStatus _viewStatus = ViewStatus.Close;
+
+        private NameTable _comNameTable;
+
+        private Dictionary<string, GameObject> _GameObjects;
 
         private ViewOpenStruct dataStruct;
 
@@ -50,13 +52,29 @@ namespace UIFramework
             }
         }
 
+        /// <summary>
+        /// 获得NameTable绑定的Gameobject
+        /// </summary>
+        public Dictionary<string, GameObject> GameObjects
+        {
+            get
+            {
+                if (_comNameTable == null)
+                {
+                    _comNameTable = GetComponent<NameTable>();
+                }
+
+                return _comNameTable.DicGameObject;
+            }
+        }
+
         public virtual void Open()
         {
             _viewStatus = ViewStatus.Open;
         }
 
         /// <summary>
-        /// 显示状态
+        /// 只允许UIManager调用，显示状态
         /// </summary>
         public virtual void Display()
         {
@@ -65,13 +83,16 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 关闭窗口
+        /// 用于外部调用，关闭窗口
         /// </summary>
         public virtual void ClickClose()
         {
             UIManager.Instance.Close(dataStruct.asset.ToString());
         }
 
+        /// <summary>
+        /// 只允许UIManager调用，隐藏面板
+        /// </summary>
         public virtual void Hide()
         {
             this.gameObject.SetActive(false);
@@ -79,7 +100,7 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 隐藏状态
+        /// 只允许UIManager调用，关闭面板
         /// </summary>
         public virtual void Close()
         {
@@ -139,16 +160,8 @@ namespace UIFramework
             script.uiType.uiViewType = (UIViewType)EditorGUILayout.EnumPopup("面板类型：", script.uiType.uiViewType);
             if (script.uiType.uiViewType == UIViewType.Normal)
             {
-                script.fullScreen = EditorGUILayout.Toggle("是否全屏面板：", script.fullScreen);
-                if (!script.fullScreen)
-                {
-                    script.uiType.uiViewLucenyType = (UIViewLucenyType)EditorGUILayout.EnumPopup("面板背景类型：", script.uiType.uiViewLucenyType);
-                }
-                else
-                {
-                    script.uiType.uiViewShowMode = (UIViewShowMode)EditorGUILayout.EnumPopup("面板显示类型：", script.uiType.uiViewShowMode);
-
-                }
+                script.uiType.uiViewShowMode = (UIViewShowMode)EditorGUILayout.EnumPopup("面板显示类型：", script.uiType.uiViewShowMode);
+                script.uiType.uiViewLucenyType = (UIViewLucenyType)EditorGUILayout.EnumPopup("面板背景类型：", script.uiType.uiViewLucenyType);
             }
 
             if (GUI.changed)

@@ -21,4 +21,8 @@ public class LogonView : BaseView
     {
         UIFramework.UIManager.Instance.Open("ui/prefabs/itemdisplay.u3dassetbundle", "ItemDisplay");
     }
+    public void OpenItemDisplay2()
+    {
+        UIFramework.UIManager.Instance.Open("ui/prefabs/logon.u3dassetbundle", "ItemDisplay2");
+    }
 }
