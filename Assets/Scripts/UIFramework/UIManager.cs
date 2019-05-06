@@ -55,9 +55,7 @@ namespace UIFramework
             _TraNormalRoot = _NameTable.Find("NormalRoot").transform;
             _TraFixedRoot = _NameTable.Find("FixedRoot").transform;
             _TraPopUpRoot = _NameTable.Find("PopUpRoot").transform;
-
-            // 把面板预制体信息写入（后期改用读取配置的方式）
-
+            
             isLoaded = true;
         }
 
@@ -81,7 +79,7 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// 外部调用，跳转到其他面板
+        /// 外部调用，跳转到其他面板并且关闭当前面板
         /// </summary>
         /// <param name="fromAsset">哪个面板资源调用的</param>
         /// <param name="asset">ab资源</param>

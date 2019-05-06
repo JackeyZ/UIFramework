@@ -7,6 +7,9 @@ using UnityEditorInternal;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// GameObject列表，用于挂载到预制体上，通过命名找到子节点。（旧的，仍然可以使用）
+/// </summary>
 public class NameTable2 : MonoBehaviour, ISerializationCallbackReceiver
 {
     [SerializeField]

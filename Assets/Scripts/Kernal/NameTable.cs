@@ -8,6 +8,9 @@ using UnityEditorInternal;
 using UnityEditor;
 #endif
 
+/// <summary>
+/// GameObject列表，用于挂载到预制体上，通过命名找到子节点。
+/// </summary>
 public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
 {
     [SerializeField]
@@ -72,9 +75,10 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
     public class NameTableEditor : Editor
     {
         ReorderableList reorderableList;
-        Color? elementDefaultColor = null;
+        Color? elementDefaultColor = null;  // 用于储存默认GUI颜色, 问号表示允许该变量为null
         private void OnEnable()
         {
+            // 创建可排序列表
             reorderableList = new ReorderableList(serializedObject,
                 serializedObject.FindProperty("nameTableElementList"),
                 true, true, true, true);
@@ -89,21 +93,26 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
             serializedObject.Update();
             NameTable script = target as NameTable;
 
+            // GameObject列表
             SerializedProperty prop = serializedObject.FindProperty("nameTableElementList");
+            // 绘制子物体回调
             reorderableList.drawElementCallback = (rect, index, isActive, isFocused) => {
                 EditorGUI.PropertyField(rect, prop.GetArrayElementAtIndex(index));
             };
 
+            // 绘制列表标题
             reorderableList.drawHeaderCallback = (Rect rect) =>
             {
                 GUI.Label(rect, "GameObjectKeys");
             };
 
+            // 加号回调
             reorderableList.onAddCallback = (ReorderableList list) =>
             {
                 script.nameTableElementList.Add(new NameTableElement(""));
             };
 
+            // 减号回调
             reorderableList.onRemoveCallback = (ReorderableList list) =>
             {
                 if (EditorUtility.DisplayDialog("警告", "是否真的要删除" + script.nameTableElementList[list.index].key + "？", "是", "否"))
@@ -112,13 +121,14 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                 }
             };
 
+            // 绘制列表背景
             reorderableList.drawElementBackgroundCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
                 if (index == -1)
                 {
                     return;
                 }
-                bool repeat = false;
+                bool repeat = false;                                                        // 属性key值是否重复
                 string key = script.nameTableElementList[index].key;
                 for (int i = 0; i < script.nameTableElementList.Count ; i++)
                 {
@@ -127,13 +137,14 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                         repeat = true;
                     }
                 }
+
                 if (repeat)
                 {
-                    GUI.color = new Color(1f, 0f, 0f, 0.8f);
+                    GUI.color = new Color(1f, 0f, 0f, 0.8f);                                // 修改GUI颜色
                 }
                 else
                 {
-                    GUI.color = (Color)elementDefaultColor;
+                    GUI.color = (Color)elementDefaultColor;                                 // 还原GUI颜色
                 }
                 ReorderableList.defaultBehaviours.DrawElementBackground(rect, index, isActive, isFocused, true);
             };
@@ -141,6 +152,7 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
             reorderableList.DoLayoutList();
             serializedObject.ApplyModifiedProperties();
             
+            // 绘制排序按钮
             if (GUILayout.Button("排序"))
             {
                 Undo.RegisterCompleteObjectUndo(script, "NameTable");
@@ -155,8 +167,8 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
                         }
                     }
                 }
-
             }
+
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);

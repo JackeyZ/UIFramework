@@ -12,15 +12,17 @@ public class GameRoot : MonoBehaviour
 {
     void Start()
     {
-        UIManager.Instance.Open("ui/prefabs/logon.u3dassetbundle","LogonPanel");
+        UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
+        StartCoroutine("TestLoad");
     }
 
     IEnumerator TestLoad()
     {
         while (enabled)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(3f);
+            UIManager.Instance.Open("ui/prefabs/messagepopup.u3dassetbundle", "MessagePopUp", "公告：123123" as object);
         }
     }
 }

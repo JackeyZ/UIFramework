@@ -43,6 +43,10 @@ namespace UIFramework
             set
             {
                 dataStruct = value;
+                if(value.data != null)
+                {
+                    SetDataCallback(value.data);
+                }
             }
         }
         
@@ -69,6 +73,12 @@ namespace UIFramework
         public virtual void Open()
         {
             _viewOpenStatus = ViewOpenStatus.Open;
+            OpenCallback();
+        }
+
+        protected virtual void OpenCallback()
+        {
+
         }
 
         /// <summary>
@@ -86,6 +96,12 @@ namespace UIFramework
         {
             this.gameObject.SetActive(true);
             _viewShowStatus = ViewShowStatus.Show;
+            DisplayCallback();
+        }
+
+        protected virtual void DisplayCallback()
+        {
+
         }
 
         /// <summary>
@@ -95,6 +111,11 @@ namespace UIFramework
         {
             this.gameObject.SetActive(false);
             _viewShowStatus = ViewShowStatus.Hide;
+            HideCallback();
+        }
+        protected virtual void HideCallback()
+        {
+
         }
 
         /// <summary>
@@ -105,20 +126,9 @@ namespace UIFramework
             this.gameObject.SetActive(false);
             _viewShowStatus = ViewShowStatus.Hide;
             _viewOpenStatus = ViewOpenStatus.Close;
+            CloseCallback();
         }
-
-        /// <summary>
-        /// 再显示状态
-        /// </summary>
-        public virtual void ReDisplay()
-        {
-
-        }
-
-        /// <summary>
-        /// 冻结状态
-        /// </summary>
-        public virtual void Freeze()
+        protected virtual void CloseCallback()
         {
 
         }
@@ -126,6 +136,11 @@ namespace UIFramework
         public virtual void SetData(object data)
         {
             this.dataStruct.data = data;
+            SetDataCallback(data);
+        }
+        protected virtual void SetDataCallback(object data)
+        {
+
         }
     }
 
