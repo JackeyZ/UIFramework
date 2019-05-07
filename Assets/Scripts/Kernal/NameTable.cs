@@ -110,6 +110,7 @@ public class NameTable : MonoBehaviour, ISerializationCallbackReceiver
             reorderableList.onAddCallback = (ReorderableList list) =>
             {
                 script.nameTableElementList.Add(new NameTableElement(""));
+                list.index = script.nameTableElementList.Count - 1;         // 选中最后一个
             };
 
             // 减号回调

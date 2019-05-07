@@ -10,29 +10,33 @@ namespace UIFramework
     /// <summary>
     /// 名称：窗体基类
     /// 作用：
-    ///     1、定义四个生命周期：
-    ///         Display（显示状态）、Hiding（隐藏状态）、ReDisplay（再显示状态）、Freeze（冻结状态）
-    ///     2、
-    ///
+    ///     1、定义面板类型：见UIType类
+    ///     2、设置面板状态：
+    ///         打开（关闭）状态、显示（隐藏）状态
     /// </summary>
     [RequireComponent(typeof(NameTable))]
     public class BaseView : MonoBehaviour
     {
-        /*字段*/
+        #region 字段
         [SerializeField]
-        public UIType uiType = new UIType();
+        public UIType uiType = new UIType();                            // 面板类型
 
         [SerializeField]
         private ViewOpenStatus _viewOpenStatus = ViewOpenStatus.Close;  // 打开状态
         [SerializeField]
-        private ViewShowStatus _viewShowStatus = ViewShowStatus.Hide;   // 显示状态，只有打开面板之后这个状态才有用
+        private ViewShowStatus _viewShowStatus = ViewShowStatus.Hide;   // 显示状态，如果面板处于关闭状态，那么面板将会是隐藏状态
 
-        private NameTable _comNameTable;
+        private NameTable _comNameTable;                                // NameTabel组件，第一次获取GameObjects的时候初始化
 
         private Dictionary<string, GameObject> _GameObjects;
 
         private ViewOpenStruct dataStruct;
+        #endregion
 
+        #region 属性
+        /// <summary>
+        /// 面板数据
+        /// </summary>
         public ViewOpenStruct DataStruct
         {
             get
@@ -66,19 +70,27 @@ namespace UIFramework
             }
         }
 
+        /// <summary>
+        /// 面板打开状态
+        /// </summary>
         public ViewOpenStatus ViewOpenStatus{ get { return _viewOpenStatus; } }
 
+        /// <summary>
+        /// 面板显示状态
+        /// </summary>
         public ViewShowStatus ViewShowStatus { get { return _viewShowStatus; } }
 
-        public virtual void Open()
-        {
-            _viewOpenStatus = ViewOpenStatus.Open;
-            OpenCallback();
-        }
+        #endregion
 
-        protected virtual void OpenCallback()
+        #region 公共方法
+        /// <summary>
+        /// 用于外部调用，用于设置面板数据
+        /// </summary>
+        /// <param name="data"></param>
+        public virtual void SetData(object data)
         {
-
+            this.dataStruct.data = data;
+            SetDataCallback(data);
         }
 
         /// <summary>
@@ -88,20 +100,17 @@ namespace UIFramework
         {
             UIManager.Instance.Close(dataStruct.asset.ToString());
         }
+        #endregion
 
+        #region UIManager专用接口
         /// <summary>
-        /// 只允许UIManager调用，显示状态
+        /// 只允许UIManager调用，显示面板
         /// </summary>
         public virtual void Display()
         {
             this.gameObject.SetActive(true);
             _viewShowStatus = ViewShowStatus.Show;
             DisplayCallback();
-        }
-
-        protected virtual void DisplayCallback()
-        {
-
         }
 
         /// <summary>
@@ -113,9 +122,14 @@ namespace UIFramework
             _viewShowStatus = ViewShowStatus.Hide;
             HideCallback();
         }
-        protected virtual void HideCallback()
-        {
 
+        /// <summary>
+        /// 只允许UIManager调用，打开面板
+        /// </summary>
+        public virtual void Open()
+        {
+            _viewOpenStatus = ViewOpenStatus.Open;
+            OpenCallback();
         }
 
         /// <summary>
@@ -128,20 +142,36 @@ namespace UIFramework
             _viewOpenStatus = ViewOpenStatus.Close;
             CloseCallback();
         }
-        protected virtual void CloseCallback()
-        {
+        #endregion
+        
+        #region 回调方法
+        /// <summary>
+        /// 打开面板之后调用
+        /// </summary>
+        protected virtual void OpenCallback() { }
 
-        }
+        /// <summary>
+        /// 关闭面板之后调用
+        /// </summary>
+        protected virtual void CloseCallback() { }
 
-        public virtual void SetData(object data)
-        {
-            this.dataStruct.data = data;
-            SetDataCallback(data);
-        }
-        protected virtual void SetDataCallback(object data)
-        {
+        /// <summary>
+        /// 显示面板之后调用
+        /// </summary>
+        protected virtual void DisplayCallback() { }
 
-        }
+        /// <summary>
+        /// 隐藏面板之后调用
+        /// </summary>
+        protected virtual void HideCallback() { }
+
+        /// <summary>
+        /// 设置面板数据后调用
+        /// </summary>
+        /// <param name="data">设置的数据</param>
+        protected virtual void SetDataCallback(object data) { }
+
+        #endregion
     }
 
 

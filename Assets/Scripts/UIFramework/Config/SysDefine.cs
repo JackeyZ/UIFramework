@@ -9,7 +9,7 @@ namespace UIFramework
     /// 作用：
     ///     定义UI框架的系统常量、委托、枚举等
     /// </summary>
-    public class SysDefine : MonoBehaviour
+    public class SysDefine
     {
         /* 路径 */
 

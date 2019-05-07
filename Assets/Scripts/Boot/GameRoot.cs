@@ -10,6 +10,7 @@ using AssetBundleFramework;
 /// </summary>
 public class GameRoot : MonoBehaviour
 {
+    float tempTime = 0;
     void Start()
     {
         UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
@@ -21,7 +22,15 @@ public class GameRoot : MonoBehaviour
     {
         while (enabled)
         {
-            yield return new WaitForSeconds(3f);
+            if (tempTime % 3 < 1)
+            {
+                yield return new WaitForSeconds(0.5f);
+            }
+            else
+            {
+                yield return new WaitForSeconds(3f);
+            }
+            tempTime += Time.deltaTime;
             UIManager.Instance.Open("ui/prefabs/messagepopup.u3dassetbundle", "MessagePopUp", "公告：123123" as object);
         }
     }

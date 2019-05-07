@@ -28,7 +28,7 @@ namespace Kernal
             
         void Awake()
         {
-            _Dictionary.Clear();
+            ClearPool();
         }
         void Start()
         {
@@ -47,6 +47,11 @@ namespace Kernal
         public void ClearPool()
         {
             _Dictionary.Clear();
+            // 销毁所有对象池内的对象
+            foreach (Transform transformItem in gameObject.transform)
+            {
+                Destroy(transformItem.gameObject);
+            }
         }
 
         /// <summary>
@@ -252,26 +257,31 @@ namespace Kernal
         /// 将需要取消激活的对象取消激活
         /// </summary>
         /// <param name="go">参数是需要取消激活的对象</param>
-        /// <param name="time">在time秒后取消激活</param>
-        /// <param name = "isNeedDestroyTime">表明是否需要定时清理</param>
+        /// <param name="time">延迟销毁，在time秒后取消激活</param>
+        /// <param name="isNeedDestroyTime">表明是否需要定时清理</param>
         /// <param name="remainingNumber">表明剩余多少数量不再定时清理</param>
-        public void DestroyGO(GameObject go, float time, bool isNeedDestroyTime = false,int remainingNumber = 0)
+        /// <param name="delectTime">启动自动删除功能的时间间隔</param>
+        /// <param name="delectOneTime">自动删除功能启动期间没删除一个对象的时间间隔</param>
+        public void DestroyGO(GameObject go, float time, bool isNeedDestroyTime = false, int remainingNumber = 0
+                                            , float delectOneTime = 10f, float delectTime = 30f)
         {
-            StartCoroutine(DelayDestroyGameObject(go, time, isNeedDestroyTime, remainingNumber));
+            StartCoroutine(DelayDestroyGameObject(go, time, isNeedDestroyTime, remainingNumber, delectOneTime, delectTime));
         }
-        public void DestroyGO(GameObject go, bool isNeedDestroyTime = false,int remainingNumber = 0)
+        public void DestroyGO(GameObject go, bool isNeedDestroyTime = false, int remainingNumber = 0
+                                            , float delectOneTime = 10f, float delectTime = 30f)
         {
-            StartCoroutine(DelayDestroyGameObject(go, 0, isNeedDestroyTime, remainingNumber));
+            StartCoroutine(DelayDestroyGameObject(go, 0, isNeedDestroyTime, remainingNumber, delectOneTime, delectTime));
             go = null;
         }
 
-        IEnumerator DelayDestroyGameObject(GameObject go,float time, bool isNeedDestroyTime = false, int remainingNumber = 0)
+        IEnumerator DelayDestroyGameObject(GameObject go,float time, bool isNeedDestroyTime = false, int remainingNumber = 0
+                                            , float delectOneTime = 10f, float delectTime = 30f)
         {
             yield return new WaitForSeconds(time);
             string key = go.name;
             //如果字典里有这个key
             if (_Dictionary.ContainsKey(key))
-            {   //就在这个key所对应的数组中加入这个go  （这个g就是已经用完的对象，放到这个数组里的gameobjet都是不销毁只是取消激活等待再次利用的gameobject）
+            {   //就在这个key所对应的数组中加入这个go  （这个go就是已经用完的对象，放到这个数组里的gameobjet都是不销毁只是取消激活等待再次利用的gameobject）
                 
                 _Dictionary[key].gameObjectList.Add(go);
                 if(isNeedDestroyTime == true)
@@ -282,8 +292,8 @@ namespace Kernal
             //如果没有这个key
             else
             {
-                //建立一个这个key的arraylist 并把g加进去
-                _Dictionary[key] = new Pool(new ArrayList() { go },30, isNeedDestroyTime, remainingNumber);
+                //建立一个这个key的arraylist 并把go加进去
+                _Dictionary[key] = new Pool(new ArrayList() { go }, isNeedDestroyTime, remainingNumber, delectOneTime, delectTime);
                 //_Dictionary[key].delectTime = 10;
             }
             //不销毁而是取消激活
@@ -307,16 +317,17 @@ namespace Kernal
                     {
                         if (_DictionaryItem.Value.isNeedDestroyTime == true)//需要定时清理
                         {
-                            if (_DictionaryItem.Value.gameObjectList.Count <= _DictionaryItem.Value.remainingNumber)//如果对象池中只剩下3个对象
+                            // 检查对应池子的对象数目是否低于保留数目
+                            if (_DictionaryItem.Value.gameObjectList.Count <= _DictionaryItem.Value.remainingNumber)//如果对象池中只剩下remainingNumber个对象
                             {
-                                _DictionaryItem.Value.delectTime = 30;
+                                _DictionaryItem.Value.curDelectTime = _DictionaryItem.Value.delectTime; // 表示delectTime秒后重新启动自动删除功能
                             }
                             else
                             {
-                                _DictionaryItem.Value.delectTime -= 10;
-                                if (_DictionaryItem.Value.delectTime <= 0.1f)
+                                _DictionaryItem.Value.curDelectTime -= 10;
+                                if (_DictionaryItem.Value.curDelectTime <= 0.1f)
                                 {
-                                    _DictionaryItem.Value.delectTime = 10;
+                                    _DictionaryItem.Value.curDelectTime = _DictionaryItem.Value.delectOneTime; // delectOneTime秒后再删除下一个对象
                                     GameObject.Destroy(_DictionaryItem.Value.gameObjectList[_DictionaryItem.Value.gameObjectList.Count - 1] as GameObject);
                                     _DictionaryItem.Value.gameObjectList.RemoveAt(_DictionaryItem.Value.gameObjectList.Count - 1);
                                 }
@@ -337,7 +348,17 @@ namespace Kernal
             string assetName = "GameObjectPreLoadAsset";
 
 #if UNITY_EDITOR
-            UnityEngine.Object prefab = AssetBundleFramework.AssetLoadInEditor.LoadObject<UnityEngine.Object>(abName, assetName);
+            UnityEngine.Object prefab = null;
+            // 是否设置了使用assetbundle资源
+            if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
+            {
+                yield return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAsset(abName, assetName, false);
+                prefab = AssetBundleFramework.AssetBundleMgr.Instance.GetYieldBundleAsset(abName, assetName);
+            }
+            else
+            {
+                prefab = AssetBundleFramework.AssetLoadInEditor.LoadObject<UnityEngine.Object>(abName, assetName);
+            }
 #else
             yield return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAsset(abName, assetName, false);
             UnityEngine.Object prefab = AssetBundleFramework.AssetBundleMgr.Instance.GetYieldBundleAsset(abName, assetName);
@@ -356,20 +377,26 @@ namespace Kernal
         class Pool
         {
             public ArrayList gameObjectList;    //储存对象的列表
-            public float delectTime;            //用于记录定期清理多余对象的时间
             public bool isNeedDestroyTime;      //表明是否需要定期清理多余对象
             public int remainingNumber;         //剩余多少数量不再定时清理
+            public float delectOneTime;         //自动删除功能启动期间没删除一个对象的时间间隔
+            public float delectTime;            //启动自动删除功能的时间间隔
+
+            public float curDelectTime;         //用于记录当前定期清理多余对象的时间, 由自动删除协程控制
             /// <summary>
             /// 构造函数
             /// </summary>
             /// <param name="gameObjectList">储存对象的列表</param>
-            /// <param name="delectTime">用于记录定期清理多余对象的时间</param>
+            /// <param name="delectTime">启动自动删除功能的时间间隔</param>
+            /// <param name="delectOneTime">自动删除功能启动期间没删除一个对象的时间间隔</param>
             /// <param name="isNeedDestroyTime">表明是否需要定期清理多余对象</param>
             /// <param name="remainingNumber">剩余多少数量不再定时清理</param>
-            public Pool(ArrayList gameObjectList, float delectTime, bool isNeedDestroyTime = false, int remainingNumber = 0)
+            public Pool(ArrayList gameObjectList, bool isNeedDestroyTime = false, int remainingNumber = 0, float delectOneTime = 10f, float delectTime = 30f)
             {
                 this.gameObjectList = gameObjectList;
+                this.curDelectTime = delectTime;
                 this.delectTime = delectTime;
+                this.delectOneTime = delectOneTime;
                 this.isNeedDestroyTime = isNeedDestroyTime;
                 if (remainingNumber < 0)
                 {

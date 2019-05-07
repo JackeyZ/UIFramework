@@ -11,7 +11,8 @@ namespace UIFramework
     public class BasePopUp : BaseView
     {
         /// <summary>
-        /// PopUp类型的面板，关闭由自己控制，不交给UIManager管理，因为PopUp类型面板可以多开，Key（AB路径:资源名称）值对应很多个面板实例
+        /// PopUp类型的面板，关闭由自己控制，UIManager只负责PopUp面板的打开和统一关闭所有PopUp面板，
+        /// 因为PopUp类型面板可以多开，Key（AB路径:资源名称）值对应很多个面板实例
         /// </summary>
         public override void Close()
         {
@@ -19,7 +20,8 @@ namespace UIFramework
         }
 
         /// <summary>
-        /// PopUp类型的面板，关闭由自己控制，不交给UIManager管理，因为PopUp类型面板可以多开，Key（AB路径:资源名称）值对应很多个面板实例
+        /// PopUp类型的面板，关闭由自己控制，UIManager只负责PopUp面板的打开和统一关闭所有PopUp面板，
+        /// 因为PopUp类型面板可以多开，Key（AB路径:资源名称）值对应很多个面板实例
         /// </summary>
         public override void ClickClose()
         {
