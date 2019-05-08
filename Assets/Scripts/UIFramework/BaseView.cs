@@ -22,7 +22,7 @@ namespace UIFramework
         public UIType uiType = new UIType();                            // 面板类型
 
         [SerializeField]
-        public float disposeTime = 5f;                                  // 关闭面板之后延迟多少秒释放，只对Normal和Fixed有效
+        public float disposeTime = 10f;                                 // 关闭面板之后延迟多少秒释放，只对Normal和Fixed有效
 
         [SerializeField]
         private ViewOpenStatus _viewOpenStatus = ViewOpenStatus.Close;  // 打开状态
@@ -146,11 +146,17 @@ namespace UIFramework
             CloseCallback();
         }
 
+        /// <summary>
+        /// 延迟释放面板
+        /// </summary>
         public void DelayDispose()
         {
             Invoke("Dispose", disposeTime);
         }
 
+        /// <summary>
+        /// 取消释放面板
+        /// </summary>
         public void CancelDispose()
         {
             CancelInvoke("Dispose");
@@ -161,6 +167,7 @@ namespace UIFramework
         #region 私有方法
         void Dispose()
         {
+            OnDispose();
             UIManager.Instance.DisposeView(dataStruct.asset);
         }
         #endregion
@@ -191,6 +198,11 @@ namespace UIFramework
         /// </summary>
         /// <param name="data">设置的数据</param>
         protected virtual void SetDataCallback(object data) { }
+
+        /// <summary>
+        /// 释放前调用
+        /// </summary>
+        protected virtual void OnDispose() { }
 
         #endregion
     }

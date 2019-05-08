@@ -258,7 +258,7 @@ namespace AssetBundleFramework
                 }
                 else
                 {
-                    Debug.LogError(abName + "包还被其他包所依赖，不能卸载");
+                    Debug.LogError(abName + "包还被其他包所依赖，不能卸载"); // 暂时为Error，其实不是重要报错
                 }
 
             }
