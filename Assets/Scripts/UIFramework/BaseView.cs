@@ -22,6 +22,9 @@ namespace UIFramework
         public UIType uiType = new UIType();                            // 面板类型
 
         [SerializeField]
+        public float disposeTime = 5f;                                  // 关闭面板之后延迟多少秒释放，只对Normal和Fixed有效
+
+        [SerializeField]
         private ViewOpenStatus _viewOpenStatus = ViewOpenStatus.Close;  // 打开状态
         [SerializeField]
         private ViewShowStatus _viewShowStatus = ViewShowStatus.Hide;   // 显示状态，如果面板处于关闭状态，那么面板将会是隐藏状态
@@ -142,8 +145,26 @@ namespace UIFramework
             _viewOpenStatus = ViewOpenStatus.Close;
             CloseCallback();
         }
+
+        public void DelayDispose()
+        {
+            Invoke("Dispose", disposeTime);
+        }
+
+        public void CancelDispose()
+        {
+            CancelInvoke("Dispose");
+        }
+
         #endregion
-        
+
+        #region 私有方法
+        void Dispose()
+        {
+            UIManager.Instance.DisposeView(dataStruct.asset);
+        }
+        #endregion
+
         #region 回调方法
         /// <summary>
         /// 打开面板之后调用
@@ -219,6 +240,15 @@ namespace UIFramework
                 script.uiType.uiViewLucenyType = (UIViewLucenyType)EditorGUILayout.EnumPopup("面板背景类型：", script.uiType.uiViewLucenyType);
             }
 
+            if (script.uiType.uiViewType != UIViewType.PopUp)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("释放秒数：");
+                script.disposeTime = EditorGUILayout.FloatField(script.disposeTime);
+                EditorGUILayout.EndHorizontal();
+            }
+
+            Undo.RecordObject(target, GetType().ToString());  // 用了这个才能让EditorGUILayout.EnumPopup更改触发保存
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);

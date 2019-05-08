@@ -15,7 +15,7 @@ public class GameRoot : MonoBehaviour
     {
         UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
-        StartCoroutine("TestLoad");
+        //StartCoroutine("TestLoad");
     }
 
     IEnumerator TestLoad()

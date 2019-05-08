@@ -291,6 +291,27 @@ namespace UIFramework
         {
             return IsOpen(new ABAsset(abName, assetName));
         }
+        
+        /// <summary>
+        /// 只提供给BaseView调用，释放面板，只适用于normal和fixed
+        /// </summary>
+        public void DisposeView(ABAsset abAsset)
+        {
+            if (_DicNormalViews.ContainsKey(abAsset.ToString()))
+            {
+                Destroy(_DicNormalViews[abAsset.ToString()].gameObject);
+                _DicNormalViews.Remove(abAsset.ToString());
+                AssetBundleMgr.Instance.DisposeAssetBundle(abAsset.ABPath);     // 卸载AB包内存镜像
+            }
+            
+            if (_DicFixedViews.ContainsKey(abAsset.ToString()))
+            {
+                Destroy(_DicFixedViews[abAsset.ToString()].gameObject);
+                _DicFixedViews.Remove(abAsset.ToString());
+                AssetBundleMgr.Instance.DisposeAssetBundle(abAsset.ABPath);     // 卸载AB包内存镜像
+            }
+        }
+
 
         #region 私有方法
         void Update()
@@ -323,6 +344,7 @@ namespace UIFramework
                 
                 if (baseView != null)
                 {
+                    baseView.CancelDispose();               // 取消释放
                     SetViewParent(baseView);
                     OpenView(baseView, viewOpenStruct);
                     return;
@@ -381,6 +403,8 @@ namespace UIFramework
             _ListOpenView.Remove(baseView);
             baseView.Close();
 
+            baseView.DelayDispose();
+
             // 当隐藏其他面板关闭的时候，按顺序逐个显示所有隐藏的面板
             if (baseView.uiType.uiViewType == UIViewType.Normal && baseView.uiType.uiViewShowMode == UIViewShowMode.HideOther)
             {
@@ -396,7 +420,7 @@ namespace UIFramework
                 }
             }
         }
-
+        
         // 隐藏面板
         void HideView(BaseView baseView)
         {
@@ -451,7 +475,7 @@ namespace UIFramework
             baseView.Display();
         }
 
-        #region 私有工具函数
+#region 私有工具函数
         /// <summary>
         /// 设置面板父节点
         /// </summary>
@@ -515,9 +539,9 @@ namespace UIFramework
                     break;
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
     }//class_end
 
     public struct ViewOpenStruct{

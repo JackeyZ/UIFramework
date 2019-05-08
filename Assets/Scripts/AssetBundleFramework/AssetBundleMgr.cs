@@ -67,7 +67,7 @@ namespace AssetBundleFramework
                 yield return null;
             }
 
-            //把当前场景加入集合中。
+            //把当前AB分类包加入集合中。
             if (!_DicAllClassify.ContainsKey(classify))
             {
                 MultiABMgr multiMgrObj = new MultiABMgr(abName);
@@ -194,7 +194,36 @@ namespace AssetBundleFramework
         }
 
         /// <summary>
-        /// 释放资源。
+        /// 卸载ab包，顺带会把其所依赖的包也卸载掉
+        /// </summary>
+        /// <param name="abName"></param>
+        public void DisposeAssetBundle(string abName, BundleClassify classify = BundleClassify.Normal)
+        {
+#if UNITY_EDITOR
+            // 是否设置了使用assetbundle资源
+            if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
+            {
+                if (_DicAllClassify.ContainsKey(classify))
+                {
+                    _DicAllClassify[classify].DisposeAssetBundle(abName);
+                }
+                else {
+                    Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);
+                }
+            }
+#else
+            if (_DicAllClassify.ContainsKey(classify))
+            {
+                _DicAllClassify[classify].DisposeAssetBundle(abName);
+            }
+            else {
+                Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// 释放分类包的所有资源。（慎用）
         /// </summary>
         /// <param name="classify">分类包名称</param>
         public void DisposeAllAssets(BundleClassify classify)
@@ -203,6 +232,7 @@ namespace AssetBundleFramework
             {
                 MultiABMgr multObj = _DicAllClassify[classify];
                 multObj.DisposeAllAsset();
+                _DicAllClassify.Remove(classify);
             }
             else {
                 Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);

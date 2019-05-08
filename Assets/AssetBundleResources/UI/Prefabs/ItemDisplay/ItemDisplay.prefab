@@ -52,9 +52,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiType:
     uiViewType: 0
-    uiViewShowMode: 2
+    uiViewShowMode: 1
     uiViewLucenyType: 0
-  _viewStatus: 0
+  _viewOpenStatus: 0
+  _viewShowStatus: 1
 --- !u!114 &7579983023783633858
 MonoBehaviour:
   m_ObjectHideFlags: 0

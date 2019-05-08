@@ -75,10 +75,10 @@ namespace AssetBundleFramework {
 
         /* 引用关系处理 */
         /// <summary>
-        /// 增加引用关系
+        /// 增加被依赖(引用)关系
         /// </summary>
         /// <param name="abName">AB包名称</param>
-        /// <returns>true：增加依赖关系成功，false：依赖关系已存在</returns>
+        /// <returns>true：增加被依赖关系成功，false：被依赖关系已存在</returns>
         public bool AddReference(string abName)
         {
             if (!_LisAllReferenceAB.Contains(abName))
@@ -90,10 +90,10 @@ namespace AssetBundleFramework {
         }
 
         /// <summary>
-        /// 移除引用关系
+        /// 移除被依赖（引用）关系
         /// </summary>
         /// <param name="abName">AB包名称</param>
-        /// <returns>true：已经没有引用关系，false：还存在引用关系</returns>
+        /// <returns>true：已经没有被依赖（引用）关系，false：还存在被依赖（引用）关系</returns>
         public bool RemoveReference(string abName)
         {
             if (_LisAllReferenceAB.Contains(abName))
@@ -108,7 +108,7 @@ namespace AssetBundleFramework {
         }
 
         /// <summary>
-        /// 获取引用依赖关系
+        /// 获取被依赖（引用）关系
         /// </summary>
         /// <returns></returns>
         public List<string> GetAllReference()

@@ -65,9 +65,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiType:
     uiViewType: 0
-    uiViewShowMode: 2
+    uiViewShowMode: 1
     uiViewLucenyType: 0
-  _viewStatus: 0
+  disposeTime: 5
+  _viewOpenStatus: 0
+  _viewShowStatus: 1
 --- !u!1 &5940780366504105873
 GameObject:
   m_ObjectHideFlags: 0

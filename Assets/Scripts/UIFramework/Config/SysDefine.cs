@@ -35,7 +35,6 @@ namespace UIFramework
     public enum UIViewShowMode
     {
         Normal,         //普通
-        ReverseChange,  //反向切换
         HideOther       //隐藏其他
     }
 

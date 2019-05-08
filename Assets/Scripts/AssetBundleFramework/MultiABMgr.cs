@@ -113,7 +113,7 @@ namespace AssetBundleFramework
             if (_DicABRelation.ContainsKey(abName))
             {
                 ABRelation tmpABRelationObj = _DicABRelation[abName];
-                //添加AB包引用关系（被依赖）
+                //添加AB包被依赖关系（引用）
                 tmpABRelationObj.AddReference(refABName);
             }
             else {
@@ -196,7 +196,7 @@ namespace AssetBundleFramework
         }
 
         /// <summary>
-        /// 释放所有的资源
+        /// 释放所有的资源, 相当于该类的析构函数
         /// </summary>
         public void DisposeAllAsset()
         {
@@ -226,5 +226,42 @@ namespace AssetBundleFramework
                 System.GC.Collect();
             }
         }
+
+        /// <summary>
+        /// 卸载ab包，顺带会把其所依赖的包也卸载掉
+        /// </summary>
+        /// <param name="abName"></param>
+        public void DisposeAssetBundle(string abName)
+        {
+            // 加载完的AB包才能卸载
+            if (AssetBundleIsLoaded(abName) && _DicABRelation.ContainsKey(abName))
+            {
+                // 没有被别的包依赖才可以进行卸载
+                if(_DicABRelation[abName].GetAllReference().Count == 0)
+                {
+                    _DicSingleABLoaderCache[abName].Dispose();  // 卸载目标ab包
+                    _DicSingleABLoaderCache.Remove(abName);
+                    List<string> dependenceList = _DicABRelation[abName].GetAllDependence(); // 获取目标包所有依赖的包列表
+                    _DicABRelation.Remove(abName);
+                    foreach (string DependAbName in dependenceList)
+                    {
+                        bool isClear = _DicABRelation[DependAbName].RemoveReference(abName); // 去掉目标包所依赖的包的被依赖关系
+
+                        // 后续要加一个当前AB包是否常驻内存的判断
+
+                        // 如果目标包所依赖的包已经没有被其他包依赖了，则把目标包所依赖的包也卸载掉（递归）
+                        if (isClear)
+                        {
+                            DisposeAssetBundle(DependAbName);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError(abName + "包还被其他包所依赖，不能卸载");
+                }
+
+            }
+        }// function_end
     }
 }
