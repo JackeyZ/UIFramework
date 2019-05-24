@@ -384,6 +384,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: UICanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 3971436309184908642, guid: 4dd53eed3693d6f489fc22a0bb55e26d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6563279422828528071, guid: 4dd53eed3693d6f489fc22a0bb55e26d,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -443,6 +448,11 @@ PrefabInstance:
         type: 3}
       propertyPath: nameTableElementList.Array.size
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3901022852894814892, guid: 4dd53eed3693d6f489fc22a0bb55e26d,
+        type: 3}
+      propertyPath: nameTableElementList.Array.data[4].key
+      value: PopUpRoot
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4dd53eed3693d6f489fc22a0bb55e26d, type: 3}

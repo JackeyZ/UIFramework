@@ -560,7 +560,9 @@ MonoBehaviour:
     uiViewType: 0
     uiViewShowMode: 0
     uiViewLucenyType: 0
-  _viewStatus: 0
+  disposeTime: 10
+  _viewOpenStatus: 0
+  _viewShowStatus: 1
 --- !u!114 &9186661667903494232
 MonoBehaviour:
   m_ObjectHideFlags: 0

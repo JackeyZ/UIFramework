@@ -32,6 +32,7 @@ namespace AssetBundleFramework
         /// <returns></returns>
         public static string GetAssetPath(string bundleName, string assetName)
         {
+            // 根据包名和资源名获取资源路径，因为后缀名可能不一样所以获取的是数组
             string[] paths = AssetDatabase.GetAssetPathsFromAssetBundleAndAssetName(bundleName, Path.GetFileNameWithoutExtension(assetName));
             if (paths.Length == 0)
             {

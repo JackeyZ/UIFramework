@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UIFramework;
 using AssetBundleFramework;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 名称：游戏引导
@@ -16,6 +17,10 @@ public class GameRoot : MonoBehaviour
         UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
         //StartCoroutine("TestLoad");
+        //AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAsset("scenes/fightscenes.u3dscene", null, (obj) => {
+        //    AsyncOperation operation = SceneManager.LoadSceneAsync("FightScene01", LoadSceneMode.Single);
+        //});
+        SceneLoader.LoadSceneAsync("scenes/fightscenes.u3dscene", "FightScene01");
     }
 
     IEnumerator TestLoad()

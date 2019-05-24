@@ -18,6 +18,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace AssetBundleFramework
@@ -137,8 +138,16 @@ namespace AssetBundleFramework
                 StartCoroutine(tmpMultiABMgr.LoadAssetBundle(abName, loadCompleteCallback));        //加载AB包
                 return;
             }
-
-            assetLoadComplete(LoadAsset(abName, assetName, isCache, classify));                     //资源加载完成调用回调函数，参数为加载进来的资源（若AB包已经加载了，则这是一个同步加载）
+            
+            // 如果ab路径的扩展名是.u3dscene说明加载的是场景，则只加载ab包，不加载ab资源（场景（scene）不需要加载资源，只需要加载包）
+            if (Path.GetExtension(abName) == ".u3dscene")
+            {
+                assetLoadComplete(null);                                                            //资源加载完成调用回调函数
+            }
+            else
+            {
+                assetLoadComplete(LoadAsset(abName, assetName, isCache, classify));                 //资源加载完成调用回调函数，参数为加载进来的资源（若AB包已经加载了，则这是一个同步加载）
+            }
         }
 
         /// <summary>
