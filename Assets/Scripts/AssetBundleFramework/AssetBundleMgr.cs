@@ -197,9 +197,13 @@ namespace AssetBundleFramework
         /// <returns></returns>
         public UnityEngine.Object GetYieldBundleAsset(string abName, string assetName)
         {
-            UnityEngine.Object obj = _Ht[abName + ":" + assetName] as UnityEngine.Object;
-            _Ht.Remove(obj);
-            return obj;
+            if(_Ht[abName + ":" + assetName] != null)
+            {
+                UnityEngine.Object obj = _Ht[abName + ":" + assetName] as UnityEngine.Object;
+                _Ht.Remove(obj);
+                return obj;
+            }
+            return null;
         }
 
         /// <summary>
