@@ -17,7 +17,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AssetBundleFramework { 
+namespace AssetBundleFramework
+{ 
     public class ABRelation {
         private string _ABName;                         //当前AB包名称
         private List<string> _LisAllDependenceAB;       //所有依赖包名称集合

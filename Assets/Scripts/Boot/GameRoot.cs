@@ -20,7 +20,7 @@ public class GameRoot : MonoBehaviour
         //AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAsset("scenes/fightscenes.u3dscene", null, (obj) => {
         //    AsyncOperation operation = SceneManager.LoadSceneAsync("FightScene01", LoadSceneMode.Single);
         //});
-        SceneLoader.LoadSceneAsync("scenes/fightscenes.u3dscene", "FightScene01");
+        // SceneLoader.LoadSceneSync("scenes/fightscenes.u3dscene", "FightScene01");
     }
 
     IEnumerator TestLoad()

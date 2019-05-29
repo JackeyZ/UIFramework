@@ -25,4 +25,25 @@ public class PrefabLoader
     {
         LoadPrefab(abAsset.ABPath, abAsset.AssetName, LoadCompete, isCache);
     }
+
+    public static UnityEngine.Object LoadPrefabSync(string abName, string assetName)
+    {
+#if UNITY_EDITOR
+        if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
+        {
+            return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAssetSync(abName, assetName);
+        }
+        else
+        {
+            return AssetBundleFramework.AssetLoadInEditor.LoadObject<UnityEngine.Object>(abName, assetName);
+        }
+#else
+        return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleAssetSync(abName, assetName);
+#endif
+    }
+
+    public static UnityEngine.Object LoadPrefabSync(AssetBundleFramework.ABAsset abAsset)
+    {
+        return LoadPrefabSync(abAsset.ABPath, abAsset.AssetName);
+    }
 }

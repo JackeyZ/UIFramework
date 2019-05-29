@@ -1,34 +1,20 @@
-﻿/***
- *
- *   Title: "AssetBundle简单框架"项目
- *          框架主流程(第4层): 所有“场景”的AssetBundle 管理。
- *
- *   Description:
- *          功能： 
- *             1: 提取“Menifest 清单文件”，缓存本脚本。
- *             2：以“分类包”为单位，管理整个项目中所有的AssetBundle 包。
- *
- *   Author: Liuguozhu
- *
- *   Date: 2017.10
- *
- *   Modify：  
- *
- */
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 
 namespace AssetBundleFramework
 {
-	public class AssetBundleMgr : MonoSingleton<AssetBundleMgr>
+    /// <summary>
+    /// 名称：AssetBundle管理器
+    /// 作用：管理整个项目的AB包
+    /// </summary>
+    public class AssetBundleMgr : MonoSingleton<AssetBundleMgr>
     {
-        //分类包集合
-        private Dictionary<BundleClassify, MultiABMgr> _DicAllClassify = new Dictionary<BundleClassify, MultiABMgr>();
+        AssetBundlePool _AssetBundlePool = new AssetBundlePool();
         //用于储存刚利用IEnumerator加载完的object
         private Hashtable _Ht;
+
         //AssetBundle （清单文件） 系统类
         private AssetBundleManifest _ManifestObj = null;
 
@@ -36,130 +22,177 @@ namespace AssetBundleFramework
         {
             _Ht = new Hashtable();
             //加载Manifest清单文件（主清单，记录着所有AB包之间的依赖关系）
-            StartCoroutine(ABManifestLoader.Instance.ManifestLoad());
+            StartCoroutine(ABManifestLoader.Instance.ManifestLoad((succeed) => {
+                if (succeed)
+                {
+                    _ManifestObj = ABManifestLoader.Instance.GetManifest();
+                }
+            }));
         }
 
-        #region 私有函数
+        #region 同步加载
+
+        #region 加载Bundle
         /// <summary>
-        /// 下载AssetBundle 指定包
+        /// 同步加载AB包，安卓下可能会有问题（路径问题）
         /// </summary>
-        /// <param name="abName">AssetBundle 包名称</param>
-        /// <param name="loadAllCompleteHandle">委托： 下载完成回调</param>
-        /// <param name="classify">分类包（类包之间资源应当互不依赖）</param>
+        /// <param name="bundleName">包名</param>
         /// <returns></returns>
-        private IEnumerator LoadAssetBundlePack(string abName, Action<string> loadAllCompleteHandle, BundleClassify classify = BundleClassify.Normal)
+        public AssetBundleItem LoadBundleSync(string bundleName)
         {
-            //参数检查
-            if (string.IsNullOrEmpty(abName))
+            if (_AssetBundlePool.BundleIsLoaded(bundleName))
             {
-                Debug.LogError(GetType()+ "/LoadAssetBundlePack()/abName is null ,请检查！");
-                yield return null;
+                return _AssetBundlePool.GetBundleItem(bundleName);
+            }
+            // 检查主Manifest清单文件是否加载完成
+            if (!ABManifestLoader.Instance.IsLoadFinish)
+            {
+                Debug.LogError("主清单尚未加载完毕");
+                return null;
+            }
+            // 检查目标包及其依赖包是否在异步加载中
+            if (CheckBundleCanLoadSync(bundleName) == false)
+            {
+                Debug.LogError(bundleName + "或其依赖包在异步加载中，不能进行同步加载");
+                return null;
             }
 
-            //等待Manifest清单文件加载完成
-            while (!ABManifestLoader.Instance.IsLoadFinish)
+            AssetBundleItem bundleItem = _AssetBundlePool.GetBundleItem(bundleName);
+            if(bundleItem == null)
             {
-                yield return null;
-            }
-            _ManifestObj = ABManifestLoader.Instance.GetManifest();
-            if (_ManifestObj == null)
-            {
-                Debug.LogError(GetType() + "/LoadAssetBundlePack()/_ManifestObj is null ,请先确保加载Manifest清单文件！");
-                yield return null;
+                bundleItem = _AssetBundlePool.AddBundleItem(bundleName);
             }
 
-            //把当前AB分类包加入集合中。
-            if (!_DicAllClassify.ContainsKey(classify))
-            {
-                MultiABMgr multiMgrObj = new MultiABMgr(abName);
-                _DicAllClassify.Add(classify, multiMgrObj);
-            }
+            bundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+            LoadBundleDependeceSync(bundleItem);
 
-            //调用下一层（“多包管理类”）
-            MultiABMgr tmpMultiMgrObj = _DicAllClassify[classify];
-            if (tmpMultiMgrObj==null)
-            {
-                Debug.LogError(GetType() + "/LoadAssetBundlePack()/tmpMultiMgrObj is null ,请检查！");
-            }
-            //调用“多包管理类”的加载指定AB包。
-            yield return tmpMultiMgrObj.LoadAssetBundle(abName, loadAllCompleteHandle);
-        }//Method_end
-        
-        /// <summary>
-        /// 加载(AB 包中)资源，AB包加载完成之后才能调用
-        /// </summary>
-        /// <param name="scenesName">场景名称</param>
-        /// <param name="abName">AssetBundle 包名称</param>
-        /// <param name="assetName">资源名称</param>
-        /// <param name="isCache">是否使用缓存</param>
-        /// <returns></returns>
-        private UnityEngine.Object LoadAsset(string abName, string assetName,bool isCache = true, BundleClassify classify = BundleClassify.Normal)
-        {
-            if (_DicAllClassify.ContainsKey(classify))
-            {
-                MultiABMgr multObj = _DicAllClassify[classify];
-                return multObj.LoadAsset(abName, assetName, isCache);
-            }
-            Debug.LogError(GetType()+ "/LoadAsset()/找不到分类包，无法加载（AB包中）资源,请检查！  scenesName="+ classify);
-            return null;
+            return bundleItem;
         }
+
+        /// <summary>
+        /// 加载ab包并添加依赖项
+        /// </summary>
+        /// <param name="bundleItem">加载目标包</param>
+        private void LoadBundleDependeceSync(AssetBundleItem bundleItem)
+        {
+            string[] strDependeceArray = ABManifestLoader.Instance.GetAssetBundleDependce(bundleItem.BundleName);
+            foreach (var depend in strDependeceArray)
+            {
+                // 添加依赖项
+                bundleItem.abRelation.AddDependence(depend);
+                AssetBundleItem dependBundleItem = _AssetBundlePool.GetBundleItem(depend);
+                if (dependBundleItem != null && _AssetBundlePool.BundleIsLoaded(depend))
+                {
+                    // 添加被依赖项
+                    dependBundleItem.abRelation.AddReference(bundleItem.BundleName);
+                    continue;
+                }
+
+                if (dependBundleItem == null)
+                {
+                    dependBundleItem = _AssetBundlePool.AddBundleItem(depend);
+                }
+                dependBundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+                // 添加被依赖项
+                dependBundleItem.abRelation.AddReference(bundleItem.BundleName);
+                LoadBundleDependeceSync(dependBundleItem);
+            }
+
+            bundleItem.LoadAssetBundleSync();
+        }
+
+        /// <summary>
+        /// 检查ab包能否在进行异步加载，如果处于异步加载中，则不允许进行同步加载
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckBundleCanLoadSync(string bundleName)
+        {
+            AssetBundleItem bundleItem = _AssetBundlePool.GetBundleItem(bundleName);
+            if(bundleItem != null && bundleItem.bundleLoadStatus == BundleLoadStatus.LOADING)
+            {
+                return false;
+            }
+
+            string[] strDependeceArray = ABManifestLoader.Instance.GetAssetBundleDependce(bundleName);
+            foreach (var depend in strDependeceArray)
+            {
+                if (CheckBundleCanLoadSync(depend) == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         #endregion
 
-        #region 公用函数
+        #region 加载Asset
         /// <summary>
-        /// 外部调用，加载资源用
+        /// 同步加载ab包资源
         /// </summary>
-        /// <param name="abName">AB包名称</param>
-        /// <param name="assetName">包内资源名称</param>
-        /// <param name="assetLoadComplete">回调函数</param>
-        /// <param name="isCache">是否缓存</param>
-        /// <param name="classify">分类包</param>
-        public void LoadBundleAsset(string abName, string assetName, Action<UnityEngine.Object> assetLoadComplete, bool isCache = true, BundleClassify classify = BundleClassify.Normal)
+        /// <param name="bundleName">包名</param>
+        /// <param name="assetName">资源名</param>
+        /// <returns></returns>
+        public UnityEngine.Object LoadBundleAssetSync(string bundleName, string assetName, bool cache = false)
         {
-            Action<string> loadCompleteCallback = delegate (string assetBundleName)                 //AB包加载完成的回调
+            if (_AssetBundlePool.BundleIsLoaded(bundleName))
             {
-                LoadBundleAsset(abName, assetName, assetLoadComplete, isCache, classify);
-            };
-
-            if (!_DicAllClassify.ContainsKey(classify))                                             //判断当前分类包是否已经创建
-            {
-                StartCoroutine(LoadAssetBundlePack(abName, loadCompleteCallback, classify));        //创建分类包加载器并加载给定AB包
-                return;
-            }
-
-            MultiABMgr tmpMultiABMgr = _DicAllClassify[classify];
-            if (!tmpMultiABMgr.AssetBundleIsLoaded(abName))                                         //判断AB包是否已经加载
-            {
-                if (tmpMultiABMgr.AssetBundleIsLoading(abName))                                     //判断AB包是否正在加载
-                {
-                    tmpMultiABMgr.AddLoadCallBack(abName, loadCompleteCallback);
-                    return;
-                }
-                StartCoroutine(tmpMultiABMgr.LoadAssetBundle(abName, loadCompleteCallback));        //加载AB包
-                return;
-            }
-            
-            // 如果ab路径的扩展名是.u3dscene说明加载的是场景，则只加载ab包，不加载ab资源（场景（scene）不需要加载资源，只需要加载包）
-            if (Path.GetExtension(abName) == ".u3dscene")
-            {
-                assetLoadComplete(null);                                                            //资源加载完成调用回调函数
+                return _AssetBundlePool.GetBundleItem(bundleName).LoadAsset(assetName, cache);
             }
             else
             {
-                assetLoadComplete(LoadAsset(abName, assetName, isCache, classify));                 //资源加载完成调用回调函数，参数为加载进来的资源（若AB包已经加载了，则这是一个同步加载）
+                AssetBundleItem bundleItem = LoadBundleSync(bundleName);
+                if(bundleItem != null)
+                {
+                    return bundleItem.LoadAsset(assetName, cache);
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 外部调用，加载资源用（重载函数）
-        /// </summary>
-        /// <param name="asset">资源数据</param>
-        /// <param name="assetLoadComplete">回调函数</param>
-        /// <param name="isCache">是否缓存</param>
-        /// <param name="classify">分类包</param>
-        public void LoadBundleAsset(ABAsset asset, Action<UnityEngine.Object> assetLoadComplete, bool isCache = true, BundleClassify classify = BundleClassify.Normal)
+        #endregion
+
+
+        #region 异步加载
+
+        #region 加载asset
+        public void LoadBundleAsset(string bundleName, string assetName, Action<UnityEngine.Object> loadcallback, bool isCache = false)
         {
-            LoadBundleAsset(asset.ABPath, asset.AssetName, assetLoadComplete, isCache, classify);
+            // 判断AB包是否已加载
+            if(_AssetBundlePool.BundleIsLoaded(bundleName))
+            {
+                AssetBundleItem bundleItem = _AssetBundlePool.GetBundleItem(bundleName);
+                UnityEngine.Object obj = bundleItem.LoadAsset(assetName, isCache);
+                loadcallback(obj);
+            }
+            else
+            {
+                // 创建AB包加载完毕回调
+                Action<bool, string> bundleLoadCallback = delegate (bool succeed, string assetbundleName)
+                {
+                    // 如果加载成功
+                    if (succeed)
+                    {
+                        AssetBundleItem abItem = _AssetBundlePool.GetBundleItem(assetbundleName);
+                        UnityEngine.Object obj = abItem.LoadAsset(assetName, isCache);
+                        loadcallback(obj);
+                    }
+                    else
+                    {
+                        loadcallback(null);
+                    }
+                };
+                // 先加载AB包
+                LoadBundle(bundleName, bundleLoadCallback);
+            }
+        }
+        public void LoadBundleAsset(ABAsset asset, Action<UnityEngine.Object> loadcallback, bool isCache = false)
+        {
+            LoadBundleAsset(asset.ABPath, asset.AssetName, loadcallback, isCache);
         }
 
         /// <summary>
@@ -169,7 +202,7 @@ namespace AssetBundleFramework
         /// <param name="assetName">包内资源名称</param>
         /// <param name="isCache">是否缓存</param>
         /// <param name="classify">分类包</param>
-        public IEnumerator LoadBundleAsset(string abName, string assetName, bool isCache = true, BundleClassify classify = BundleClassify.Normal)
+        public IEnumerator LoadBundleAsset(string abName, string assetName, bool isCache = true)
         {
             bool loadDone = false;              // 是否加载完成
             float loadTime = 20f;               // 最长加载时间，超过该加载时间还未完成则直接返回
@@ -180,7 +213,7 @@ namespace AssetBundleFramework
                 loadDone = true;
             };
 
-            LoadBundleAsset(abName, assetName, assetLoadComplete, isCache, classify);
+            LoadBundleAsset(abName, assetName, assetLoadComplete, isCache);
 
             while (!loadDone && loadTime > 0)
             {
@@ -197,7 +230,7 @@ namespace AssetBundleFramework
         /// <returns></returns>
         public UnityEngine.Object GetYieldBundleAsset(string abName, string assetName)
         {
-            if(_Ht[abName + ":" + assetName] != null)
+            if (_Ht[abName + ":" + assetName] != null)
             {
                 UnityEngine.Object obj = _Ht[abName + ":" + assetName] as UnityEngine.Object;
                 _Ht.Remove(obj);
@@ -205,55 +238,126 @@ namespace AssetBundleFramework
             }
             return null;
         }
+        #endregion
 
+        #region 加载bundle
+        public void LoadBundle(string bundleName, Action<bool, string> loadCallback)
+        {
+            StartCoroutine(LoadBundleIEn(bundleName, loadCallback));
+        }
+
+        private IEnumerator LoadBundleIEn(string bundleName, Action<bool, string> loadCallback)
+        {
+            //等待主Manifest清单文件加载完成
+            while (!ABManifestLoader.Instance.IsLoadFinish)
+            {
+                yield return null;
+            }
+
+            AssetBundleItem bundleItem = _AssetBundlePool.GetBundleItem(bundleName);
+            // 检查是否已加载
+            if (_AssetBundlePool.BundleIsLoaded(bundleName))
+            {
+                loadCallback(true, bundleName);
+            }
+            // 检查是否加载中
+            else if (bundleItem != null && bundleItem.bundleLoadStatus == BundleLoadStatus.LOADING)
+            {
+                bundleItem.LoadCallback += loadCallback;
+            }
+            else
+            {
+                if(bundleItem == null)
+                {
+                    bundleItem = _AssetBundlePool.AddBundleItem(bundleName, loadCallback);
+                }
+                else
+                {
+                    bundleItem.LoadCallback += loadCallback;
+                }
+                bundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+
+                string[] strDependeceArray = ABManifestLoader.Instance.GetAssetBundleDependce(bundleItem.BundleName);
+                foreach (var depend in strDependeceArray)
+                {
+                    // 添加依赖项
+                    bundleItem.abRelation.AddDependence(depend);
+                    // 先加载所有依赖的AB包并设置被依赖关系
+                    yield return LoadReference(depend, bundleItem);
+                }
+
+                // 真正加载AB包
+                yield return bundleItem.LoadAssetBundle();
+            }
+        }
+
+        /// <summary>
+        /// 加载依赖的AB包并设置被依赖关系
+        /// </summary>
+        /// <param name="dependBundleName">当前包依赖的AB包名称</param>
+        /// <param name="bundleItem">当前包Item</param>
+        /// <returns></returns>
+        private IEnumerator LoadReference(string dependBundleName, AssetBundleItem bundleItem)
+        {
+            Action<bool, string> loadCompleteCallback = delegate (bool succeed, string assetBundleName)                 //协程加载完成的回调
+            {
+                if (succeed)
+                {
+                    //添加AB包被依赖关系（引用）
+                    _AssetBundlePool.GetBundleItem(assetBundleName).abRelation.AddReference(bundleItem.BundleName);
+                }
+            };
+
+            AssetBundleItem dependBundleItem = _AssetBundlePool.GetBundleItem(dependBundleName);
+            //如果AB包已经加载
+            if (dependBundleItem != null)
+            {
+                //添加AB包被依赖关系（引用）
+                dependBundleItem.abRelation.AddReference(bundleItem.BundleName);
+            }
+            else {
+                //开始加载依赖的包(这是一个递归调用)
+                yield return LoadBundleIEn(dependBundleName, loadCompleteCallback);
+            }
+        }
+        #endregion
+
+        #endregion
+
+
+        #region 释放
         /// <summary>
         /// 卸载ab包，顺带会把其所依赖的包也卸载掉
         /// </summary>
         /// <param name="abName"></param>
-        public void DisposeAssetBundle(string abName, BundleClassify classify = BundleClassify.Normal)
+        public void DisposeAssetBundle(string abName)
         {
 #if UNITY_EDITOR
             // 是否设置了使用assetbundle资源
             if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
             {
-                if (_DicAllClassify.ContainsKey(classify))
-                {
-                    _DicAllClassify[classify].DisposeAssetBundle(abName);
-                }
-                else {
-                    Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);
-                }
+                _AssetBundlePool.DisposeAssetBundle(abName);
             }
 #else
-            if (_DicAllClassify.ContainsKey(classify))
-            {
-                _DicAllClassify[classify].DisposeAssetBundle(abName);
-            }
-            else {
-                Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);
-            }
+            _AssetBundlePool.DisposeAssetBundle(abName);
 #endif
         }
 
         /// <summary>
-        /// 释放分类包的所有资源。（慎用）
+        /// 释放所有资源。（慎用）
         /// </summary>
-        /// <param name="classify">分类包名称</param>
-        public void DisposeAllAssets(BundleClassify classify)
+        public void DisposeAllAssets()
         {
-            if (_DicAllClassify.ContainsKey(classify))
+#if UNITY_EDITOR
+            // 是否设置了使用assetbundle资源
+            if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
             {
-                MultiABMgr multObj = _DicAllClassify[classify];
-                multObj.DisposeAllAsset();
-                _DicAllClassify.Remove(classify);
+                _AssetBundlePool.DisposeAllAssetBundle();
             }
-            else {
-                Debug.LogError(GetType() + "/DisposeAllAssets()/找不到分类包名称，无法释放资源，请检查！  classify=" + classify);
-            }
+#else
+            _AssetBundlePool.DisposeAllAssetBundle();
+#endif
         }
         #endregion
-
-    }//Class_end
+    }
 }
-
-

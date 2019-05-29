@@ -35,7 +35,7 @@ public class AssetConfigTools
 
         //将类名 Bullet 转换为字符串
         //拼接保存自定义资源（.asset） 路径
-        path = string.Format(AssetBundleFramework.PathTool.AssetConfigDir + "/{0}.asset", (typeof(GameObjectPreLoadAsset).ToString()));
+        path = string.Format((string)(AssetBundleFramework.PathTool.AssetConfigDir + "/{0}.asset"), (typeof(GameObjectPreLoadAsset).ToString()));
 
         // 生成自定义资源到指定路径
         AssetDatabase.CreateAsset(bullet, path);

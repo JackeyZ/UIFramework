@@ -10,6 +10,7 @@
 *
 *Modify Recoder:
 */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,7 +38,7 @@ namespace AssetBundleFramework
         /// 加载依赖清单
         /// </summary>
         /// <returns></returns>
-        public IEnumerator ManifestLoad()
+        public IEnumerator ManifestLoad(Action<bool> loadCallBack)
         {
             using (UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(_loadPath))
             {
@@ -46,10 +47,14 @@ namespace AssetBundleFramework
                 if (_manifestBundle == null)
                 {
                     Debug.LogError(GetType() + "读取manifest失败：" + _loadPath);
-                    yield return null;
+                    loadCallBack(false);
                 }
-                _manifest = _manifestBundle.LoadAsset(AssetBundleDefined.ASSETBUNDLE_MANIFEST_STR) as AssetBundleManifest;
-                _isLoadFinish = true;
+                else
+                {
+                    _manifest = _manifestBundle.LoadAsset(AssetBundleDefined.ASSETBUNDLE_MANIFEST_STR) as AssetBundleManifest;
+                    _isLoadFinish = true;
+                    loadCallBack(true);
+                }
             }
         }
 

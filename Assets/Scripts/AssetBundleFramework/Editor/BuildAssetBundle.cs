@@ -38,7 +38,7 @@ namespace AssetBundleFramework {
             Directory.CreateDirectory(ABOutPath);
 
             //打包生成
-            BuildPipeline.BuildAssetBundles(ABOutPath, BuildAssetBundleOptions.None, AssetBundleConst.buildTarget);
+            BuildPipeline.BuildAssetBundles(ABOutPath, BuildAssetBundleOptions.UncompressedAssetBundle, AssetBundleConst.buildTarget);
             //刷新
             AssetDatabase.Refresh();
         }

@@ -46,7 +46,7 @@ namespace AssetBundleFramework
                     break;
                 case RuntimePlatform.IPhonePlayer:
                 case RuntimePlatform.Android:
-                    platformPath = Application.persistentDataPath;
+                    platformPath = Application.streamingAssetsPath;   // 如果安卓下读取有问题，可尝试platformPath = Application.dataPath +"!assets";
                     break;
             }
             return platformPath;
@@ -83,7 +83,8 @@ namespace AssetBundleFramework
                 // windows平台
                 case RuntimePlatform.WindowsPlayer:
                 case RuntimePlatform.WindowsEditor:
-                    strReturnWWWPath = "file://" + OutPutPath;
+                    //strReturnWWWPath = "file://" + OutPutPath;
+                    strReturnWWWPath = OutPutPath;
                     break;
                 //安卓平台
                 case RuntimePlatform.Android:

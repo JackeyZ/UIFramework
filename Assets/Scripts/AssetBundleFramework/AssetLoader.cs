@@ -34,9 +34,6 @@ namespace AssetBundleFramework
         /// <param name="ab">给定用WWW加载的AssetBundle的实例</param>
         public AssetLoader(AssetBundle ab)
         {
-
-#if UNITY_EDITOR
-#endif
             if (ab != null)
             {
                 _CurrentAssetBundle = ab;
