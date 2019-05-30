@@ -18,7 +18,7 @@ public class GameRoot : MonoBehaviour
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
         //StartCoroutine("TestLoad");
 
-        SceneLoader.LoadSceneAsync("scenes/fightscenes.u3dscene", "FightScene01");
+        //SceneLoader.LoadSceneAsync("scenes/fightscenes.u3dscene", "FightScene01");
     }
 
     IEnumerator TestLoad()
