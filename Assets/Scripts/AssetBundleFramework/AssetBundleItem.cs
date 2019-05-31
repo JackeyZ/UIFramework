@@ -85,6 +85,7 @@ namespace AssetBundleFramework {
                     }
                     else
                     {
+                        Debug.Log(assetBundle.name + "异步加载加载完成");
                         _AssetLoader = new AssetLoader(assetBundle);
                         bundleLoadStatus = BundleLoadStatus.LOADED;
                         if (LoadCallback != null)

@@ -31,6 +31,10 @@ namespace AssetBundleFramework
 
              FileSystemInfo可转化成DirectoryInfo
              FileSystemInfo可转化成FileInfo
+
+            判断文件夹方法：
+            Directory.Exists(path)是文件夹
+            File.Exists(path)是文件
              */
             string assetBundleResRoot = string.Empty;   //需要打包的资源根目录
             DirectoryInfo[] sceneDirArray = null;       //用于储存二级目录信息
