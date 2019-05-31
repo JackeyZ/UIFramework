@@ -77,7 +77,9 @@ public class SceneLoader
         // 是否设置了使用assetbundle资源
         if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
         {
-            return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleSync(abName) != null;
+            bool result = AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleSync(abName) != null;
+            SceneManager.LoadScene(sceneName, loadSceneMode);
+            return result ;
         }
         else
         {
@@ -93,7 +95,9 @@ public class SceneLoader
             return true;
         }
 #else
-        return AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleSync(abName) != null;
+        bool result = AssetBundleFramework.AssetBundleMgr.Instance.LoadBundleSync(abName) != null;
+        SceneManager.LoadScene(sceneName, loadSceneMode);
+        return result ;
 #endif
     }
 }

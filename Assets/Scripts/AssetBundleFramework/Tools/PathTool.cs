@@ -27,6 +27,8 @@ namespace AssetBundleFramework
 
         public static string AssetConfigDir = "Assets/AssetBundleResources/AssetConfigs";   //unity资源配置存放路径
 
+        public static string JsonConfigDir = "Assets/AssetBundleResources/JsonConfig";      //Json配置存放路径
+
         public static string OutPutPath
         {
             get

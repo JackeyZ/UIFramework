@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UIFramework;
 using AssetBundleFramework;
-using UnityEngine.SceneManagement;
+
+using System.Text;
+using System.IO;
 
 /// <summary>
 /// 名称：游戏引导
@@ -16,9 +18,8 @@ public class GameRoot : MonoBehaviour
     {
         UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
-        //StartCoroutine("TestLoad");
-
-        //SceneLoader.LoadSceneAsync("scenes/fightscenes.u3dscene", "FightScene01");
+        StartCoroutine("TestLoad2");
+        ConfigManager.Instance.ReadConfig();
     }
 
     IEnumerator TestLoad()
@@ -36,5 +37,10 @@ public class GameRoot : MonoBehaviour
             tempTime += Time.deltaTime;
             UIManager.Instance.Open("ui/prefabs/messagepopup.u3dassetbundle", "MessagePopUp", "公告：123123" as object);
         }
+    }
+    IEnumerator TestLoad2()
+    {
+        yield return new WaitForSeconds(5f);
+        SceneLoader.LoadSceneSync("scenes/fightscenes.u3dscene", "FightScene01");
     }
 }

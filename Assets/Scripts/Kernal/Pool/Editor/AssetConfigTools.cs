@@ -10,8 +10,8 @@ using System.IO;
 /// </summary>
 public class AssetConfigTools
 {
-    // 在菜单栏创建功能项
-    [MenuItem("AssetConfigTools/CreatPreLoadAsset")]
+    // 创建对象池预加载配置
+    [MenuItem("AssetConfigTools/CreatGameObjectPreLoadAsset")]
     static void CreatePreLoadAsset()
     {
         // 实例化类  Bullet
@@ -24,7 +24,7 @@ public class AssetConfigTools
             Debug.LogWarning("Bullet not found");
             return;
         }
-        // 自定义资源保存路径
+        // 对象池预加载配置保存的路径
         string path = AssetBundleFramework.PathTool.AssetConfigDir;
         // 如果项目总不包含该路径，创建一个
         if (!Directory.Exists(path))
