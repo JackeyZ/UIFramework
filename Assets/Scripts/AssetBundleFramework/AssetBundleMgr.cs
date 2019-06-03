@@ -28,6 +28,12 @@ namespace AssetBundleFramework
                     _ManifestObj = ABManifestLoader.Instance.GetManifest();
                 }
             }));
+            StartCoroutine("CheckAssetBundleLastUseTime");
+        }
+
+        void Start()
+        {
+            _AssetBundlePool.LoadAssetBundlePermanentAsset();
         }
 
         #region 同步加载
@@ -47,7 +53,7 @@ namespace AssetBundleFramework
             // 检查主Manifest清单文件是否加载完成
             if (!ABManifestLoader.Instance.IsLoadFinish)
             {
-                Debug.LogError("主清单尚未加载完毕");
+                Debug.LogError("加载" + bundleName + "的时候，主清单尚未加载完毕");
                 return null;
             }
             // 检查目标包及其依赖包是否在异步加载中
@@ -63,7 +69,7 @@ namespace AssetBundleFramework
                 bundleItem = _AssetBundlePool.AddBundleItem(bundleName);
             }
 
-            bundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+            bundleItem.BundleLoadStatus = BundleLoadStatus.LOADING;
             LoadBundleDependeceSync(bundleItem);
 
             return bundleItem;
@@ -92,7 +98,7 @@ namespace AssetBundleFramework
                 {
                     dependBundleItem = _AssetBundlePool.AddBundleItem(depend);
                 }
-                dependBundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+                dependBundleItem.BundleLoadStatus = BundleLoadStatus.LOADING;
                 // 添加被依赖项
                 dependBundleItem.abRelation.AddReference(bundleItem.BundleName);
                 LoadBundleDependeceSync(dependBundleItem);
@@ -108,7 +114,7 @@ namespace AssetBundleFramework
         public bool CheckBundleCanLoadSync(string bundleName)
         {
             AssetBundleItem bundleItem = _AssetBundlePool.GetBundleItem(bundleName);
-            if(bundleItem != null && bundleItem.bundleLoadStatus == BundleLoadStatus.LOADING)
+            if(bundleItem != null && bundleItem.BundleLoadStatus == BundleLoadStatus.LOADING)
             {
                 return false;
             }
@@ -261,7 +267,7 @@ namespace AssetBundleFramework
                 loadCallback(true, bundleName);
             }
             // 检查是否加载中
-            else if (bundleItem != null && bundleItem.bundleLoadStatus == BundleLoadStatus.LOADING)
+            else if (bundleItem != null && bundleItem.BundleLoadStatus == BundleLoadStatus.LOADING)
             {
                 bundleItem.LoadCallback += loadCallback;
             }
@@ -275,7 +281,7 @@ namespace AssetBundleFramework
                 {
                     bundleItem.LoadCallback += loadCallback;
                 }
-                bundleItem.bundleLoadStatus = BundleLoadStatus.LOADING;
+                bundleItem.BundleLoadStatus = BundleLoadStatus.LOADING;
 
                 string[] strDependeceArray = ABManifestLoader.Instance.GetAssetBundleDependce(bundleItem.BundleName);
                 foreach (var depend in strDependeceArray)
@@ -344,7 +350,7 @@ namespace AssetBundleFramework
         }
 
         /// <summary>
-        /// 释放所有资源。（慎用）
+        /// 卸载所有AB包内存镜像,但不卸载对象。
         /// </summary>
         public void DisposeAllAssets()
         {
@@ -358,6 +364,36 @@ namespace AssetBundleFramework
             _AssetBundlePool.DisposeAllAssetBundle();
 #endif
         }
+
+        /// <summary>
+        /// 清理asset加载缓存，并且释放没用的Asset，最好在场景加载的时候调用
+        /// </summary>
+        public void ClearAllBundleItemCache()
+        {
+#if UNITY_EDITOR
+            // 是否设置了使用assetbundle资源
+            if (AssetBundleFramework.DeveloperSetting.GetUseAssetBundleAsset())
+            {
+                _AssetBundlePool.ClearAllBundleItemCache();
+            }
+#else
+            _AssetBundlePool.ClearAllBundleItemCache();
+#endif
+        }
+
+        /// <summary>
+        /// 检查AB包上次使用的时间，判断是否释放（定时释放）
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator CheckAssetBundleLastUseTime()
+        {
+            while (enabled)
+            {
+                yield return new WaitForSeconds(AssetBundlePool.MAX_UNLOAD_TIME);
+                _AssetBundlePool.CheckBundleLastUseTime();
+            }
+        }
         #endregion
+        
     }
 }

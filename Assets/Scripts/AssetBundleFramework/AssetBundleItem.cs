@@ -25,19 +25,37 @@ namespace AssetBundleFramework {
     {
         public string BundleName;                              // ab包名
         public ABRelation abRelation;                          // 依赖关系
-        public BundleLoadStatus bundleLoadStatus;              // 加载状态
+        private BundleLoadStatus bundleLoadStatus;             // 加载状态
         public Action<bool, string> LoadCallback;              // 加载完成回调（参数1：加载是否成功, 参数2：加载成功的AB包名）
         public AssetBundle assetBundle;
         public string _ABDownLoadPath;
+        public float lastUseTimeStamp = 0;                     // 记录上次使用该AB包的时间
 
         private AssetLoader _AssetLoader;
+
+        public BundleLoadStatus BundleLoadStatus
+        {
+            get
+            {
+                return bundleLoadStatus;
+            }
+
+            set
+            {
+                if(value == BundleLoadStatus.LOADED)
+                {
+                    lastUseTimeStamp = Time.unscaledTime;
+                }
+                bundleLoadStatus = value;
+            }
+        }
 
         public AssetBundleItem(string bundleName, Action<bool, string> loadCallbcak)
         {
             BundleName = bundleName;
             abRelation = new ABRelation(bundleName);
             LoadCallback = loadCallbcak;
-            bundleLoadStatus = BundleLoadStatus.WAIT_LOAD;
+            BundleLoadStatus = BundleLoadStatus.WAIT_LOAD;
             _ABDownLoadPath = PathTool.GetWWWPath() + "/" + bundleName;
         }
 
@@ -52,7 +70,7 @@ namespace AssetBundleFramework {
             else
             {
                 _AssetLoader = new AssetLoader(assetBundle);
-                bundleLoadStatus = BundleLoadStatus.LOADED;
+                BundleLoadStatus = BundleLoadStatus.LOADED;
                 if (LoadCallback != null)
                 {
                     LoadCallback(true, BundleName);
@@ -75,19 +93,19 @@ namespace AssetBundleFramework {
                 //AssetBundle ab_prefab = DownloadHandlerAssetBundle.GetContent(request);
                 //取得ab的方式2
                 assetBundle = (request.downloadHandler as DownloadHandlerAssetBundle).assetBundle;
-                if (bundleLoadStatus != BundleLoadStatus.DISPOSED)
+                if (BundleLoadStatus != BundleLoadStatus.DISPOSED)
                 {
                     if (assetBundle == null)
                     {
                         Debug.LogError(GetType() + "LoadAssetBundle失败：" + _ABDownLoadPath);
-                        bundleLoadStatus = BundleLoadStatus.LOAD_FAIL;
+                        BundleLoadStatus = BundleLoadStatus.LOAD_FAIL;
                         LoadCallback(false, BundleName);
                     }
                     else
                     {
                         Debug.Log(assetBundle.name + "异步加载加载完成");
                         _AssetLoader = new AssetLoader(assetBundle);
-                        bundleLoadStatus = BundleLoadStatus.LOADED;
+                        BundleLoadStatus = BundleLoadStatus.LOADED;
                         if (LoadCallback != null)
                         {
                             LoadCallback(true, BundleName);
@@ -112,6 +130,7 @@ namespace AssetBundleFramework {
         {
             if (_AssetLoader != null)
             {
+                lastUseTimeStamp = Time.unscaledTime;
                 return _AssetLoader.LoadAsset(assetName, isCache);
             }
             Debug.LogError(GetType() + "/LoadAsset()/ 参数_AssetLoader == null  ,请检查！" + ":" + assetName);
@@ -134,6 +153,14 @@ namespace AssetBundleFramework {
             }
         }
 
+        public void ClearLoaderCache()
+        {
+            if (_AssetLoader != null)
+            {
+                _AssetLoader.ClearCache();
+            }
+        }
+
         private void ClearLoadCallBack()
         {
             Delegate[] delArray = LoadCallback.GetInvocationList();
@@ -143,18 +170,26 @@ namespace AssetBundleFramework {
             }
         }
 
+        /// <summary>
+        /// 释放AB包
+        /// </summary>
         public void Dispose()
         {
-            bundleLoadStatus = BundleLoadStatus.DISPOSED;
+            BundleLoadStatus = BundleLoadStatus.DISPOSED;
             if (assetBundle != null)
                 assetBundle.Unload(false);
+            _AssetLoader = null;
         }
 
+        /// <summary>
+        /// 强制释放，不安全
+        /// </summary>
         public void DisposeAll()
         {
-            bundleLoadStatus = BundleLoadStatus.DISPOSED;
+            BundleLoadStatus = BundleLoadStatus.DISPOSED;
             if (assetBundle != null)
                 assetBundle.Unload(true);
+            _AssetLoader = null;
         }
     }
 }

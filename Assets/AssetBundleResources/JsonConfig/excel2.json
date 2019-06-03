@@ -2,19 +2,19 @@
 	"ItemList":[
 		{
 			"Id":"1",
-			"Name":"物品A",
+			"Name":"物品D",
 			"Attr":"血量",
 			"Value":"100"
 		},
 		{
 			"Id":"2",
-			"Name":"物品B",
+			"Name":"物品C",
 			"Attr":"攻击",
 			"Value":"10"
 		},
 		{
 			"Id":"3",
-			"Name":"物品C",
+			"Name":"物品F",
 			"Attr":"防御",
 			"Value":"10"
 		}

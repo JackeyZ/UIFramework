@@ -14,22 +14,49 @@ public class ConfigManager : MonoSingleton<ConfigManager>
 
     }
 
-    public void ReadConfig()
+    public JObject LoadConfig(string configName)
     {
-        PrefabLoader.LoadPrefab("jsonconfig.u3dassetbundle", "excel1", (obj) => {
-            string json = (obj as TextAsset).ToString();
-            JObject jsonObj = JObject.Parse(json);
+        UnityEngine.Object obj = PrefabLoader.LoadPrefabSync("jsonconfig.u3dassetbundle", configName, true);
+        string json = (obj as TextAsset).ToString();
+        JObject jsonObj = JObject.Parse(json);
 
-            Debug.Log(jsonObj["ItemList"].ToString());
-            Debug.Log(jsonObj["EquipList"].ToString());
+        #region 遍历示例
+        //Debug.Log(jsonObj["ItemList"].ToString());
+        //foreach (var item in jsonObj)
+        //{
+        //    Debug.Log(item.Key);
+        //    Debug.Log(item.Value);
+        //    Debug.Log(item.Value[0]);
+        //    Debug.Log(item.Value[1]);
+        //    JArray array = item.Value as JArray; // 是数组（[])才可以转换成JArray， 不是数组转换会返回Null
+        //    foreach (var rowItem in array)
+        //    {
+        //        Debug.Log(rowItem);
+        //        Debug.Log("Name" + ":" + rowItem["Name"]);
+        //        Debug.Log("Id" + ":" + rowItem["Id"]);
+        //        foreach (var colItem in rowItem)
+        //        {
+        //            Debug.Log(colItem.ToString());
+        //        }
+        //    }
+        //}
+        #endregion
 
-            JArray ints = (JArray)jsonObj["ItemList"];
+        return jsonObj;
+    }
 
-            foreach (var inter in ints)
-            {
-                Debug.Log(inter);
-                Debug.Log(inter["Name"]);
-            }
-        });
+    // 加载excel表中的一个分页
+    public JToken LoadConfigSheet(string configName, string sheetName)
+    {
+        JObject config = LoadConfig(configName);
+        if(config[sheetName] != null)
+        {
+            return config[sheetName];
+        }
+        else
+        {
+            Debug.LogError(configName + "配置中的" + sheetName + "分页不存在，请检查");
+            return null;
+        }
     }
 }

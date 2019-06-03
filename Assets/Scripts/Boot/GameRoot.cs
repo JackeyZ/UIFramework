@@ -19,7 +19,6 @@ public class GameRoot : MonoBehaviour
         UIManager.Instance.Open("ui/prefabs/mainview.u3dassetbundle","MainView");
         Kernal.GameObjectPool.Instance.PreLoadGameObject();
         StartCoroutine("TestLoad2");
-        ConfigManager.Instance.ReadConfig();
     }
 
     IEnumerator TestLoad()
@@ -42,5 +41,6 @@ public class GameRoot : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         SceneLoader.LoadSceneSync("scenes/fightscenes.u3dscene", "FightScene01");
+        ConfigManager.Instance.LoadConfig("excel1");
     }
 }

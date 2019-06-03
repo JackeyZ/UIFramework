@@ -5,10 +5,10 @@ using UnityEditor;
 using System.IO;
 
 /// <summary>
-/// 名称：
-/// 作用：
+/// 名称：对象池预加载配置生成器
+/// 作用：用于创建对象池预加载资源配置
 /// </summary>
-public class AssetConfigTools
+public class GameObjectPreloadAssetConfigTools
 {
     // 创建对象池预加载配置
     [MenuItem("AssetConfigTools/CreatGameObjectPreLoadAsset")]

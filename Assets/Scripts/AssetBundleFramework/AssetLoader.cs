@@ -23,7 +23,7 @@ using UnityEngine;
 
 namespace AssetBundleFramework
 {
-    public class AssetLoader : System.IDisposable
+    public class AssetLoader
     {
         private AssetBundle _CurrentAssetBundle;    //当前AB包
         private Hashtable _Ht;                      //缓存容器集合
@@ -57,7 +57,9 @@ namespace AssetBundleFramework
         }
 
         /// <summary>
-        /// 加载当前AB包的资源
+        /// 加载当前AB包的资源，
+        /// 关于该资源的释放：返回的是一个Asset源对象，该Asset可能会克隆出其他对象，以及被其他对象引用，
+        /// 所以释放的时候调用Resources.UnloadUnusedAssets比较方便管理，如果确定该资源没有被引用，则可以调用下面的UnLoadAsset
         /// </summary>
         /// <typeparam name="T">类型</typeparam>
         /// <param name="assetName">资源名称</param>
@@ -85,9 +87,14 @@ namespace AssetBundleFramework
             return tmpTResource;
         }
 
-
+        public void ClearCache()
+        {
+            _Ht.Clear();
+        }
+        
         /// <summary>
-        /// 卸载指定的资源
+        /// 卸载指定的资源,一般情况不会调用该接口
+        /// 用Resources.UnloadUnusedAssets来释放资源
         /// </summary>
         /// <param name="asset">资源名称</param>
         /// <returns></returns>
@@ -95,29 +102,17 @@ namespace AssetBundleFramework
         {
             if (asset != null)
             {
+                if (_Ht.ContainsKey(asset.name))
+                {
+                    _Ht.Remove(asset.name);
+                }
                 Resources.UnloadAsset(asset);
                 return true;
             }
             Debug.LogError(GetType() + "/UnLoadAsset()/参数 asset==null ,请检查！");
             return false;
         }
-
-        /// <summary>
-        /// 释放当前AssetBundle内存镜像资源
-        /// </summary>
-        public void Dispose()
-        {
-            _CurrentAssetBundle.Unload(false);
-        }
-
-        /// <summary>
-        /// 释放当前AssetBundle内存镜像资源,且释放内存资源。
-        /// </summary>
-        public void DisposeAll()
-        {
-            _CurrentAssetBundle.Unload(true);
-        }
-
+        
         /// <summary>
         /// 查询当前AssetBundle中包含的所有资源名称。
         /// </summary>
