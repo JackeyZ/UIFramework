@@ -27,7 +27,7 @@ SpriteAtlas:
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 1
-      enableTightPacking: 1
+      enableTightPacking: 0
     variantMultiplier: 1
     packables:
     - {fileID: 21300000, guid: 79605ddda4c96984e896887e28509d0c, type: 3}
@@ -37,15 +37,7 @@ SpriteAtlas:
     totalSpriteSurfaceArea: 0
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
-  m_PackedSprites:
-  - {fileID: 21300000, guid: 9de07f63c8264ce428410acb1c8acc8f, type: 3}
-  - {fileID: 21300000, guid: 2fa95918b4d7ec54da317d54c09b34dc, type: 3}
-  - {fileID: 21300000, guid: 30d45158d1eb91a4a86e2a61a6e6afdd, type: 3}
-  - {fileID: 21300000, guid: 79605ddda4c96984e896887e28509d0c, type: 3}
-  m_PackedSpriteNamesToIndex:
-  - icon_061
-  - InputBackground
-  - icon_054
-  - btn_create
+  m_PackedSprites: []
+  m_PackedSpriteNamesToIndex: []
   m_Tag: SpriteAtlas
   m_IsVariant: 0
